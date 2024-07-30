@@ -3,10 +3,10 @@ title: "Dose-Response Descriptive Statistics"
 author: "Jonathan Salas"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-  html_document:
+  html_document: 
     df_print: kable
-    fig_width: 7
     fig_height: 6
+    keep_md: true
 ---
 
 ```{r setup, include=FALSE}
