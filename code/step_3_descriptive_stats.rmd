@@ -1,8 +1,12 @@
 ---
 title: "Dose-Response Descriptive Statistics" 
 author: "Jonathan Salas"
-date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    df_print: kable
+    fig_width: 7
+    fig_height: 6
 ---
 
 ```{r setup, include=FALSE}
@@ -12,18 +16,25 @@ library(dplyr)
 library(ggplot2)
 library(lme4)
 library(lmerTest)
+knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
 ```
 
 # Import the cleaned data - Point to the correct raw data directory
 
-```{r}
-cleaned_res_dir <-"data/processed/working_dr.RData"
+```{r echo = F}
+working_dat_dir <-"data/processed/working_dr.RData"
 ```
 
 # Aesthetics
 
-```{r}
+```{r echo = F}
 blank.plot <- theme_bw() +
   theme(panel.border = element_blank(), 
         panel.grid.major = element_blank(), #this theme section generates a blank canvas
@@ -34,25 +45,18 @@ blank.plot <- theme_bw() +
 ```
 
 ## Import Subject Data
-```{r}
-load(cleaned_res_dir)
-```
-
-# Make Analysis Data
-
-```{r}
-analysis_dat <- cleaned_res |>
-  filter(experiment_id != c("04022024Potato")) # excluded because this is the experiment where # of uni/bip pulses were changed sequentially, can't be compared to rest 
+```{r echo = F}
+load(working_dat_dir)
 ```
 
 # Descriptive Statistics
 
 ## Summary Table of Subjects 
-```{r How many subjects got which waveform, pulse sequence, and input voltage}
-analysis_dat |>
+```{r How many subjects got which waveform, pulse sequence, and input voltage, echo = F}
+working_dat |>
   count(waveform, voltage, pulse_seq) |> left_join(
     # Add in basic stats for depth/diameter
-    analysis_dat |> group_by(waveform, voltage, pulse_seq) |>
+    working_dat |> group_by(waveform, voltage, pulse_seq) |>
       summarise(
         median_depth = median(depth, na.rm = T),
         IQR_depth = IQR(depth, na.rm = T),
@@ -70,8 +74,8 @@ analysis_dat |>
 
 ### Depth Dose-Response - Line Plots
 
-```{r}
-analysis_dat |>
+```{r echo = F}
+working_dat |>
   ggplot(data = _, aes(
     x = application_num,
     y = depth,
@@ -81,27 +85,26 @@ analysis_dat |>
   geom_point() +
   geom_line() +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
-  scale_x_continuous(labels = analysis_dat$application_num,
-                     breaks = analysis_dat$application_num) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Repetitions") +
   ylab("Depth (cm)") +
   labs(caption = "Caption") +
-  scale_color_discrete(guide = "none") +
   blank.plot
 ```
 
 ### Depth Dose-Response - Smoothed Line Plots
 
-```{r}
-analysis_dat |>
+```{r echo = F}
+working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
   geom_point(aes(color=id)) +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
-  scale_x_continuous(labels = analysis_dat$application_num,
-                     breaks = analysis_dat$application_num) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Repetitions") +
@@ -115,7 +118,7 @@ analysis_dat |>
 ### Diameter line plots 
 
 ```{r}
-analysis_dat |>
+working_dat |>
   ggplot(data = _, aes(
     x = application_num,
     y = diameter,
@@ -125,8 +128,8 @@ analysis_dat |>
   geom_point() +
   geom_line() +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
-  scale_x_continuous(labels = analysis_dat$application_num,
-                     breaks = analysis_dat$application_num) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Repetitions") +
@@ -138,13 +141,13 @@ analysis_dat |>
 ### Diameter Dose-Response - Smoothed Line Plots
 
 ```{r}
-analysis_dat |>
+working_dat |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(span = 10) +
   geom_point(aes(color=id)) +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
-  scale_x_continuous(labels = analysis_dat$application_num,
-                     breaks = analysis_dat$application_num) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Repetitions") +
