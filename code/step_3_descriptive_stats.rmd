@@ -82,7 +82,7 @@ working_dat |>
     group = id,
     color = id
   )) +
-  geom_point() +
+  geom_point(size = 3) +
   geom_line() +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
   scale_x_continuous(labels = working_dat$application_num,
@@ -101,7 +101,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
-  geom_point(aes(color=id)) +
+  geom_point(aes(color=id), size = 3) +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -125,7 +125,7 @@ working_dat |>
     group = id,
     color = id
   )) +
-  geom_point() +
+  geom_point(size = 3) +
   geom_line() +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
   scale_x_continuous(labels = working_dat$application_num,
@@ -144,7 +144,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(span = 10) +
-  geom_point(aes(color=id)) +
+  geom_point(aes(color=id), size = 3) +
   facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
