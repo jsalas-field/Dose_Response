@@ -23,7 +23,6 @@ raw_data_dir <-"data/processed/imported_dr.RData"
 load(raw_data_dir)
 ```
 
-
 ## Calculate derived statistics
 
 ```{r}
@@ -34,16 +33,20 @@ cleaned_res <- cleaned_res |>
 ```
 
 # Make Analysis Data
+ 
+We exclude the fast-switch data from the 04022024Potato experiment because here we varied ratio of bipolar to unipolar applications to assess depth & diameter. Isn't directly comparable to the bulk of the data
 
 ```{r}
-cleaned_res <- cleaned_res |>
-  filter(experiment_id != c("04022024Potato")) # excluded because this is the experiment where # of uni/bip pulses were changed sequentially, can't be compared to rest 
+working_dat <- cleaned_res |>
+  filter(experiment_id == "04022024Potato") |> 
+  filter(waveform == "fast-switch") |>
+  anti_join(x = cleaned_res)
 ```
 
 # Save cleaned data
 
 ```{r}
-save(cleaned_res, 
+save(working_dat, 
      file = paste0("data/processed/working_dr.RData"))
 ```
 
