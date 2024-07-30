@@ -1,0 +1,69 @@
+---
+title: "Modify Raw Imported Data"
+author: "Jonathan Salas"
+date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(stringr)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Import the raw data - Point to the correct raw data directory
+
+```{r}
+raw_data_dir <-"data/processed/imported_dr.RData"
+```
+
+
+## Import Subject Data
+```{r}
+load(raw_data_dir)
+```
+
+
+## Calculate derived statistics
+
+```{r}
+cleaned_res <- cleaned_res |>
+  mutate(
+    depth_per_width = round(depth/diameter,2)
+  ) 
+```
+
+# Make Analysis Data
+
+```{r}
+cleaned_res <- cleaned_res |>
+  filter(experiment_id != c("04022024Potato")) # excluded because this is the experiment where # of uni/bip pulses were changed sequentially, can't be compared to rest 
+```
+
+# Save cleaned data
+
+```{r}
+save(cleaned_res, 
+     file = paste0("data/processed/working_dr.RData"))
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```

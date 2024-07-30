@@ -1,0 +1,62 @@
+---
+title: "Import and Clean Data"
+author: "Jonathan Salas"
+date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readxl)
+library(janitor)
+library(dplyr)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Import the raw data - Point to the correct raw data directory
+
+```{r}
+raw_data_dir <-"/Users/jonathansalas/R_Projects/Dose_Response/data/raw/dr_db.xlsx"
+```
+
+# Excel import
+
+## Import Subject Data
+```{r}
+raw_res <- read_excel(path = raw_data_dir,
+                      sheet = "results")
+```
+
+## Remove Empty Rows
+
+```{r}
+cleaned_res <- janitor::remove_empty(raw_res, which = "rows")
+```
+
+
+# Save cleaned data
+
+```{r}
+save(cleaned_res, 
+     file = paste0("data/processed/imported_dr.RData"))
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```

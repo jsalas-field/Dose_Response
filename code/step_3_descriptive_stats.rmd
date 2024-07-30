@@ -1,0 +1,175 @@
+---
+title: "Dose-Response Descriptive Statistics" 
+author: "Jonathan Salas"
+date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Import the cleaned data - Point to the correct raw data directory
+
+```{r}
+cleaned_res_dir <-"data/processed/working_dr.RData"
+```
+
+# Aesthetics
+
+```{r}
+blank.plot <- theme_bw() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(), #this theme section generates a blank canvas
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        legend.title = element_blank(),
+        legend.justification="top")
+```
+
+## Import Subject Data
+```{r}
+load(cleaned_res_dir)
+```
+
+# Make Analysis Data
+
+```{r}
+analysis_dat <- cleaned_res |>
+  filter(experiment_id != c("04022024Potato")) # excluded because this is the experiment where # of uni/bip pulses were changed sequentially, can't be compared to rest 
+```
+
+# Descriptive Statistics
+
+## Summary Table of Subjects 
+```{r How many subjects got which waveform, pulse sequence, and input voltage}
+analysis_dat |>
+  count(waveform, voltage, pulse_seq) |> left_join(
+    # Add in basic stats for depth/diameter
+    analysis_dat |> group_by(waveform, voltage, pulse_seq) |>
+      summarise(
+        median_depth = median(depth, na.rm = T),
+        IQR_depth = IQR(depth, na.rm = T),
+        median_diameter = median(diameter, na.rm = T),
+        IQR_diameter = IQR(diameter, na.rm = T),
+        median_depth_per_width = median(depth_per_width, na.rm = T),
+        IQR_depth_per_width = IQR(depth_per_width, na.rm = T)
+      )
+  )
+```
+
+# Plots
+
+## Depth
+
+### Depth Dose-Response - Line Plots
+
+```{r}
+analysis_dat |>
+  ggplot(data = _, aes(
+    x = application_num,
+    y = depth,
+    group = id,
+    color = id
+  )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  scale_x_continuous(labels = analysis_dat$application_num,
+                     breaks = analysis_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Repetitions") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") +
+  scale_color_discrete(guide = "none") +
+  blank.plot
+```
+
+### Depth Dose-Response - Smoothed Line Plots
+
+```{r}
+analysis_dat |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(span = 10) +
+  geom_point(aes(color=id)) +
+  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  scale_x_continuous(labels = analysis_dat$application_num,
+                     breaks = analysis_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Repetitions") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") +
+  blank.plot
+```
+
+## Diameter Dose-Response
+
+### Diameter line plots 
+
+```{r}
+analysis_dat |>
+  ggplot(data = _, aes(
+    x = application_num,
+    y = diameter,
+    group = id,
+    color = id
+  )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  scale_x_continuous(labels = analysis_dat$application_num,
+                     breaks = analysis_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Repetitions") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") +
+  blank.plot
+```
+
+### Diameter Dose-Response - Smoothed Line Plots
+
+```{r}
+analysis_dat |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(span = 10) +
+  geom_point(aes(color=id)) +
+  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  scale_x_continuous(labels = analysis_dat$application_num,
+                     breaks = analysis_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Repetitions") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") +
+  blank.plot
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```
