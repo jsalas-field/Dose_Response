@@ -84,12 +84,12 @@ working_dat |>
   )) +
   geom_point(size = 3) +
   geom_line() +
-  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
-  xlab("Repetitions") +
+  xlab("Applications") +
   ylab("Depth (cm)") +
   labs(caption = "Caption") +
   blank.plot
@@ -102,12 +102,12 @@ working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
   geom_point(aes(color=id), size = 3) +
-  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
-  xlab("Repetitions") +
+  xlab("Applications") +
   ylab("Depth (cm)") +
   labs(caption = "Caption") +
   blank.plot
@@ -127,12 +127,12 @@ working_dat |>
   )) +
   geom_point(size = 3) +
   geom_line() +
-  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
-  xlab("Repetitions") +
+  xlab("Applications") +
   ylab("Diameter (cm)") +
   labs(caption = "Caption") +
   blank.plot
@@ -145,12 +145,12 @@ working_dat |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(span = 10) +
   geom_point(aes(color=id), size = 3) +
-  facet_wrap( ~ experiment_id + pulse_seq + waveform + voltage) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
-  xlab("Repetitions") +
+  xlab("Applications") +
   ylab("Diameter (cm)") +
   labs(caption = "Caption") +
   blank.plot
