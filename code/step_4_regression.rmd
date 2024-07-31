@@ -1,0 +1,563 @@
+---
+title: "Regression Modeling" 
+author: "Jonathan Salas"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    df_print: kable
+    fig_height: 6
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(emmeans)
+library(medrc)
+library(aomisc)
+knitr::opts_chunk$set(echo = F)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
+```
+
+# Import the cleaned data - Point to the correct raw data directory
+
+```{r echo = F}
+working_dat_dir <-"data/processed/working_dr.RData"
+```
+
+# Aesthetics
+
+```{r echo = F}
+blank.plot <- theme_bw() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(), #this theme section generates a blank canvas
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        legend.title = element_blank(),
+        legend.justification="top")
+```
+
+## Import Subject Data
+```{r echo = F}
+load(working_dat_dir)
+```
+
+# Regression Fitting
+
+## 10kV 20x5 Bipolar 
+
+### Linear Regression
+
+#### Depth 
+
+```{r}
+lm_depth_1 <- lm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" &
+              waveform == "bipolar")
+)
+```
+
+```{r}
+summary(lm_depth_1)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10,
+              pulse_seq == "20x5",
+              waveform == "bipolar") |>
+ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "lm", se = F ) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("10kV 20x5 Bipolar") +
+  xlab("Applications") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") +
+  coord_cartesian(ylim=c(3,7)) +
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("10kv20x5bipolar_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+```{r}
+drm_depth_asymp_1 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" & 
+              waveform == "bipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_depth_asymp_1)
+```
+
+
+#### Diameter
+
+```{r}
+lm_diameter_1 <- lm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" &
+              waveform == "bipolar")
+)
+```
+
+```{r}
+summary(lm_diameter_1)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10,
+              pulse_seq == "20x5",
+              waveform == "bipolar") |>
+ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "lm", se = F) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("10kV 20x5 Bipolar") +
+  xlab("Applications") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") +
+  coord_cartesian(ylim=c(10,20)) +
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("10kv20x5bipolar_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+```{r}
+drm_diameter_asymp_1 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" & 
+              waveform == "bipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_diameter_asymp_1)
+```
+
+
+## 10 kV Fast-Switch 10x5
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+#### Depth
+
+```{r}
+drm_depth_asymp_2 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "10x5" & 
+              waveform == "fast-switch"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_depth_asymp_2)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10, pulse_seq == "10x5", waveform == "fast-switch") |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("10kV 10x5 Fast-Switch") +
+  xlab("Applications") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(0,15))+
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("10kv10x5fast_switch_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+#### Diameter
+
+```{r}
+drm_diameter_asymp_2 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "10x5" & 
+              waveform == "fast-switch"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_diameter_asymp_2)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10, pulse_seq == "10x5", waveform == "fast-switch") |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("10kV 10x5 Fast-Switch") +
+  xlab("Applications") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(15,25))+
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("10kv10x5fast_switch_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+## 15kV Unipolar 15x5
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+#### Depth
+
+```{r}
+drm_depth_asymp_3 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "15x5" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_depth_asymp_3)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "15x5", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 15x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(5,25))+
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("15kv15x5uni_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+#### Diameter
+
+```{r}
+drm_diameter_asymp_3 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "15x5" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_diameter_asymp_3)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "15x5", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 15x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(20,50))+
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("15kv15x5uni_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+## 15 kV Unipolar 20x5
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+#### Depth
+
+```{r}
+drm_depth_asymp_4 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "20x5" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_depth_asymp_4)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 20x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(5,20))+
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("15kv20x5uni_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+#### Diameter
+
+```{r}
+drm_diameter_asymp_4 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "20x5" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_diameter_asymp_4)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 20x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") +
+  coord_cartesian(ylim=c(20,60)) +
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("15kv20x5uni_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 20,
+       height = 28,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+### Summary Plot
+
+#### Diameter
+
+```{r}
+working_dat |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_point(aes(color=id), size = 4) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Diameter (cm)") +
+  labs(caption = "Caption") +
+  blank.plot +
+  theme(axis.text=element_text(size=30, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("nls_applications_vs_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 50,
+       height = 25,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+#### Depth
+
+```{r}
+working_dat |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_point(aes(color=id), size = 4) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Depth (cm)") +
+  labs(caption = "Caption") +
+  blank.plot +
+  theme(axis.text=element_text(size=30, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("nls_applications_vs_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 50,
+       height = 25,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```
