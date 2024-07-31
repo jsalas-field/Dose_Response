@@ -1,7 +1,7 @@
 ---
 title: "Dose-Response Descriptive Statistics" 
 author: "Jonathan Salas"
-date: "30 July, 2024"
+date: "31 July, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -61,6 +61,11 @@ output:
 
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
+```
+## Warning: Removed 4 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
 ### Depth Dose-Response - Smoothed Line Plots
 
 
@@ -97,6 +102,13 @@ output:
 
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+## Removed 6 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
 ### Diameter Dose-Response - Smoothed Line Plots
 
 
@@ -115,6 +127,51 @@ output:
 ```
 
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+## Depth/Diameter Ratio
+
+### Depth/Diameter Ratio line plots 
+
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+## Removed 6 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+```
+
+
+### Depth/Diameter Ratio LOESS line plots 
+
+
+```
+## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 6 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+```
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
 
 # Version and Package Details
 
@@ -145,5 +202,5 @@ output:
 
 
 ```
-## [1] "Tue Jul 30 18:25:30 2024"
+## [1] "Wed Jul 31 08:31:38 2024"
 ```

@@ -1,7 +1,7 @@
 ---
 title: "Regression Modeling" 
 author: "Jonathan Salas"
-date: "30 July, 2024"
+date: "31 July, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -150,6 +150,45 @@ output:
 ##  1.202907 (28 degrees of freedom)
 ```
 
+#### Depth/Diameter Ratio
+
+
+
+
+```
+## 
+## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
+##     subset = (voltage == 10 & pulse_seq == "20x5" & waveform == 
+##         "bipolar"))
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -0.0486719 -0.0130040  0.0009946  0.0129954  0.0599943 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)      0.3107  0.0090    34.6929
+## application_num -0.0007  0.0014    -0.4621
+## 
+## Residual standard error: 0.02025 on 28 degrees of freedom
+```
+
+```
+## 
+## 	robust F-test (as if non-random weights)
+## 
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 10 & pulse_seq == "20x5" & waveform == from         "bipolar"))
+## F = 0.21088, p-value = 0.6496
+## alternative hypothesis: true application_num is not equal to 0
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+
+
 
 ## 10 kV Fast-Switch 10x5
 
@@ -192,7 +231,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -241,7 +280,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -252,6 +291,55 @@ output:
 ## Removed 6 rows containing missing values or values outside the scale range
 ## (`geom_point()`).
 ```
+
+#### Depth/Diameter Ratio
+
+
+
+
+```
+## 
+## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
+##     subset = (voltage == 10 & pulse_seq == "10x5" & waveform == 
+##         "fast-switch"))
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.064314 -0.030335  0.001609  0.025777  0.082721 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)      0.2713  0.0254    10.6757
+## application_num  0.0207  0.0037     5.5919
+## 
+## Residual standard error: 0.04558 on 22 degrees of freedom
+##   (6 observations deleted due to missingness)
+```
+
+```
+## 
+## 	robust F-test (as if non-random weights)
+## 
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 10 & pulse_seq == "10x5" & waveform == from         "fast-switch"))
+## F = 31.606, p-value = 1.186e-05
+## alternative hypothesis: true application_num is not equal to 0
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 6 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+```
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
 ## 15kV Unipolar 15x5
 
@@ -284,7 +372,7 @@ output:
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -317,11 +405,49 @@ output:
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
+
+#### Depth/Diameter Ratio
+
+
+
+
+```
+## 
+## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
+##     subset = (voltage == 15 & pulse_seq == "15x5" & waveform == 
+##         "unipolar"))
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.083285 -0.036906 -0.003191  0.035454  0.101856 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)      0.3235  0.0199    16.2198
+## application_num  0.0150  0.0032     4.6524
+## 
+## Residual standard error: 0.05542 on 28 degrees of freedom
+```
+
+```
+## 
+## 	robust F-test (as if non-random weights)
+## 
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "15x5" & waveform == from         "unipolar"))
+## F = 21.843, p-value = 6.768e-05
+## alternative hypothesis: true application_num is not equal to 0
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-35-1.png)<!-- -->
 
 ## 15 kV Unipolar 20x5
 
@@ -354,7 +480,7 @@ output:
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-38-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -387,11 +513,49 @@ output:
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-41-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
+
+#### Depth/Diameter Ratio
+
+
+
+
+```
+## 
+## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
+##     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == 
+##         "unipolar"))
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.065463 -0.020227  0.002115  0.027351  0.119065 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)      0.3612  0.0136    26.6386
+## application_num -0.0052  0.0022    -2.3597
+## 
+## Residual standard error: 0.0373 on 28 degrees of freedom
+```
+
+```
+## 
+## 	robust F-test (as if non-random weights)
+## 
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == from         "unipolar"))
+## F = 5.5857, p-value = 0.02528
+## alternative hypothesis: true application_num is not equal to 0
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-44-1.png)<!-- -->
 
 ### Summary Plot
 
@@ -412,7 +576,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-33-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -441,7 +605,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-46-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -450,6 +614,35 @@ output:
 ```
 ## Warning: Removed 4 rows containing non-finite outside the scale range (`stat_smooth()`).
 ## Removed 4 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+### Depth/Diameter Ratio Regression Plot
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 6 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+```
+
+```
+## Warning: Removed 6 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-47-1.png)<!-- -->
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 6 rows containing non-finite outside the scale range (`stat_smooth()`).
+## Removed 6 rows containing missing values or values outside the scale range
 ## (`geom_point()`).
 ```
 
@@ -482,6 +675,7 @@ output:
 |metafor  |metafor  |4.6-0         |
 |nlme     |nlme     |3.1-165       |
 |numDeriv |numDeriv |2016.8-1.1    |
+|sfsmisc  |sfsmisc  |1.1-18        |
 
 </div>
 
@@ -489,5 +683,5 @@ output:
 
 
 ```
-## [1] "Tue Jul 30 22:15:22 2024"
+## [1] "Wed Jul 31 08:31:26 2024"
 ```

@@ -16,6 +16,7 @@ library(ggplot2)
 library(emmeans)
 library(medrc)
 library(aomisc)
+library(sfsmisc)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
@@ -176,6 +177,44 @@ drm_diameter_asymp_1 <- drm(
 summary(drm_diameter_asymp_1)
 ```
 
+#### Depth/Diameter Ratio
+
+```{r}
+rlm_depth_ratio_1 <- rlm(
+  depth_per_width ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" & 
+              waveform == "bipolar"))
+```
+
+```{r}
+summary(rlm_depth_ratio_1)
+
+f.robftest(rlm_depth_ratio_1, var = "application_num")
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10,
+              pulse_seq == "20x5",
+              waveform == "bipolar") |>
+ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "lm", se = F) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("10kV 20x5 Bipolar") +
+  xlab("Applications") +
+  ylab("Depth per Diameter (cm)") +
+  labs(caption = "Caption") +
+#  coord_cartesian(ylim=c(10,20)) +
+  blank.plot +
+  theme(axis.text=element_text(size=40, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+```
+
+
 
 ## 10 kV Fast-Switch 10x5
 
@@ -275,6 +314,40 @@ ggsave("10kv10x5fast_switch_diameter.png",
        units = "cm",
        dpi = "retina",
        limitsize = F)
+```
+
+#### Depth/Diameter Ratio
+
+```{r}
+rlm_depth_ratio_2 <- rlm(
+  depth_per_width ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "10x5" & 
+              waveform == "fast-switch"))
+```
+
+```{r}
+summary(rlm_depth_ratio_2)
+f.robftest(rlm_depth_ratio_2, var = "application_num")
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 10,
+              pulse_seq == "10x5",
+              waveform == "fast-switch") |>
+ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "rlm", se = T) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("10kV 20x5 Bipolar") +
+  xlab("Applications") +
+  ylab("Depth per Diameter (cm)") +
+  labs(caption = "Caption") +
+#  coord_cartesian(ylim=c(10,20)) +
+  blank.plot 
 ```
 
 ## 15kV Unipolar 15x5
@@ -377,6 +450,40 @@ ggsave("15kv15x5uni_diameter.png",
        limitsize = F)
 ```
 
+#### Depth/Diameter Ratio
+
+```{r}
+rlm_depth_ratio_3 <- rlm(
+  depth_per_width ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "15x5" & 
+              waveform == "unipolar"))
+```
+
+```{r}
+summary(rlm_depth_ratio_3)
+f.robftest(rlm_depth_ratio_3, var = "application_num")
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15,
+              pulse_seq == "15x5",
+              waveform == "unipolar") |>
+ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "rlm", se = T) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("15kV 15x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Depth per Diameter (cm)") +
+  labs(caption = "Caption") +
+#  coord_cartesian(ylim=c(10,20)) +
+  blank.plot 
+```
+
 ## 15 kV Unipolar 20x5
 
 ### 2-Parameter Nonlinear Asymptotic Regression
@@ -477,6 +584,40 @@ ggsave("15kv20x5uni_diameter.png",
        limitsize = F)
 ```
 
+#### Depth/Diameter Ratio
+
+```{r}
+rlm_depth_ratio_4 <- rlm(
+  depth_per_width ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "20x5" & 
+              waveform == "unipolar"))
+```
+
+```{r}
+summary(rlm_depth_ratio_4)
+f.robftest(rlm_depth_ratio_4,"application_num")
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15,
+              pulse_seq == "20x5",
+              waveform == "unipolar") |>
+ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_jitter(width = 0.2, size = 4) + 
+  geom_smooth(method = "rlm", se = T) +
+  scale_x_continuous(labels = unique(working_dat$application_num),
+                     breaks = unique(working_dat$application_num)) +
+  ggtitle("10kV 20x5 Bipolar") +
+  xlab("Applications") +
+  ylab("Depth per Diameter (cm)") +
+  labs(caption = "Caption") +
+#  coord_cartesian(ylim=c(10,20)) +
+  blank.plot 
+```
+
 ### Summary Plot
 
 #### Diameter
@@ -532,6 +673,39 @@ working_dat |>
         axis.title=element_text(size=24,face="bold")) 
 
 ggsave("nls_applications_vs_depth.png",
+       path = "figures",
+       scale = 1,
+       width = 50,
+       height = 25,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+### Depth/Diameter Ratio Regression Plot
+
+```{r}
+working_dat |>
+  ggplot(data = _, aes(
+    x = application_num,
+    y = depth_per_width
+  )) +
+  geom_point(aes(color = id), size = 4) +
+  geom_smooth(method = "rlm",
+              se = F) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Depth/Diameter Ratio") +
+  labs(caption = "Caption") +
+  blank.plot +
+  theme(axis.text=element_text(size=30, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("depth_diameter_ratio_dr.png",
        path = "figures",
        scale = 1,
        width = 50,

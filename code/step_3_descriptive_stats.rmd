@@ -178,6 +178,65 @@ working_dat |>
   blank.plot
 ```
 
+## Depth/Diameter Ratio
+
+### Depth/Diameter Ratio line plots 
+
+```{r}
+working_dat |>
+  ggplot(data = _, aes(
+    x = application_num,
+    y = depth_per_width,
+    group = id,
+    color = id
+  )) +
+  geom_point(size = 4) +
+  geom_line() +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Depth/Diameter Ratio") +
+  labs(caption = "Caption") +
+  blank.plot +
+  theme(axis.text=element_text(size=30, face = "bold"),
+        axis.title=element_text(size=24,face="bold")) 
+
+ggsave("raw_depth_diameter_ratio.png",
+       path = "figures",
+       scale = 1,
+       width = 50,
+       height = 25,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
+```
+
+
+### Depth/Diameter Ratio LOESS line plots 
+
+```{r}
+working_dat |>
+  ggplot(data = _, aes(
+    x = application_num,
+    y = depth_per_width
+  )) +
+  geom_point(aes(color = id), size = 4) +
+  geom_smooth(span = 10) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Depth/Diameter Ratio") +
+  labs(caption = "Caption") +
+  blank.plot
+```
+
+
 # Version and Package Details
 
 ```{r echo=F}
