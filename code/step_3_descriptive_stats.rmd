@@ -90,7 +90,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") +
   blank.plot +
   theme(axis.text=element_text(size=30, face = "bold"),
@@ -119,7 +119,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") +
   blank.plot
 ```
@@ -144,7 +144,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   blank.plot +
   theme(axis.text=element_text(size=30, face = "bold"),
@@ -173,7 +173,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   blank.plot
 ```

@@ -84,7 +84,7 @@ ggplot(data = _, aes(x = application_num, y = depth)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("10kV 20x5 Bipolar") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") +
   coord_cartesian(ylim=c(3,7)) +
   blank.plot +
@@ -145,7 +145,7 @@ ggplot(data = _, aes(x = application_num, y = diameter)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("10kV 20x5 Bipolar") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   coord_cartesian(ylim=c(10,20)) +
   blank.plot +
@@ -206,7 +206,7 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("10kV 20x5 Bipolar") +
   xlab("Applications") +
-  ylab("Depth per Diameter (cm)") +
+  ylab("Depth per Diameter") +
   labs(caption = "Caption") +
 #  coord_cartesian(ylim=c(10,20)) +
   blank.plot +
@@ -251,7 +251,7 @@ working_dat |>
   ) +
   ggtitle("10kV 10x5 Fast-Switch") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") + 
   coord_cartesian(ylim=c(0,15))+
   blank.plot +
@@ -299,7 +299,7 @@ working_dat |>
   ) +
   ggtitle("10kV 10x5 Fast-Switch") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") + 
   coord_cartesian(ylim=c(15,25))+
   blank.plot +
@@ -344,7 +344,7 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("10kV 20x5 Bipolar") +
   xlab("Applications") +
-  ylab("Depth per Diameter (cm)") +
+  ylab("Depth per Diameter") +
   labs(caption = "Caption") +
 #  coord_cartesian(ylim=c(10,20)) +
   blank.plot 
@@ -385,7 +385,7 @@ working_dat |>
   ) +
   ggtitle("15kV 15x5 Unipolar") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") + 
   coord_cartesian(ylim=c(5,25))+
   blank.plot +
@@ -433,7 +433,7 @@ working_dat |>
   ) +
   ggtitle("15kV 15x5 Unipolar") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") + 
   coord_cartesian(ylim=c(20,50))+
   blank.plot +
@@ -478,7 +478,7 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("15kV 15x5 Unipolar") +
   xlab("Applications") +
-  ylab("Depth per Diameter (cm)") +
+  ylab("Depth per Diameter") +
   labs(caption = "Caption") +
 #  coord_cartesian(ylim=c(10,20)) +
   blank.plot 
@@ -519,7 +519,7 @@ working_dat |>
   ) +
   ggtitle("15kV 20x5 Unipolar") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") + 
   coord_cartesian(ylim=c(5,20))+
   blank.plot +
@@ -567,7 +567,7 @@ working_dat |>
   ) +
   ggtitle("15kV 20x5 Unipolar") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   coord_cartesian(ylim=c(20,60)) +
   blank.plot +
@@ -612,7 +612,7 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
                      breaks = unique(working_dat$application_num)) +
   ggtitle("10kV 20x5 Bipolar") +
   xlab("Applications") +
-  ylab("Depth per Diameter (cm)") +
+  ylab("Depth per Diameter") +
   labs(caption = "Caption") +
 #  coord_cartesian(ylim=c(10,20)) +
   blank.plot 
@@ -635,7 +635,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Diameter (cm)") +
+  ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   blank.plot +
   theme(axis.text=element_text(size=30, face = "bold"),
@@ -666,7 +666,7 @@ working_dat |>
   scale_color_discrete(guide = "none") +
   ggtitle("Title") +
   xlab("Applications") +
-  ylab("Depth (cm)") +
+  ylab("Depth (mm)") +
   labs(caption = "Caption") +
   blank.plot +
   theme(axis.text=element_text(size=30, face = "bold"),
