@@ -628,11 +628,12 @@ working_dat |>
   geom_smooth(method = drm,
               method.args = list(fct = AR.2()),
               se = F) +
-  geom_point(aes(color=id), size = 4) +
+  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
+  coord_cartesian(ylim=c(0,60)) +
   ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
@@ -659,11 +660,12 @@ working_dat |>
   geom_smooth(method = drm,
               method.args = list(fct = AR.2()),
               se = F) +
-  geom_point(aes(color=id), size = 4) +
+  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
+  coord_cartesian(ylim=c(0,25)) +
   ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
@@ -690,7 +692,7 @@ working_dat |>
     x = application_num,
     y = depth_per_width
   )) +
-  geom_point(aes(color = id), size = 4) +
+  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
   geom_smooth(method = "rlm",
               se = F) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +

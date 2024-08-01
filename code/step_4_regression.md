@@ -1,7 +1,7 @@
 ---
 title: "Regression Modeling" 
 author: "Jonathan Salas"
-date: "31 July, 2024"
+date: "02 August, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -683,5 +683,5 @@ output:
 
 
 ```
-## [1] "Wed Jul 31 11:06:45 2024"
+## [1] "Fri Aug  2 07:13:28 2024"
 ```

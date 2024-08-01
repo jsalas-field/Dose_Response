@@ -1,7 +1,7 @@
 ---
 title: "Dose-Response Descriptive Statistics" 
 author: "Jonathan Salas"
-date: "31 July, 2024"
+date: "02 August, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -95,18 +95,11 @@ output:
 ## (`geom_point()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_line()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ```
 ## Warning: Removed 6 rows containing missing values or values outside the scale range
 ## (`geom_point()`).
-## Removed 6 rows containing missing values or values outside the scale range
-## (`geom_line()`).
 ```
 
 ### Diameter Dose-Response - Smoothed Line Plots
@@ -138,18 +131,11 @@ output:
 ## (`geom_point()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_line()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 ```
 ## Warning: Removed 6 rows containing missing values or values outside the scale range
 ## (`geom_point()`).
-## Removed 6 rows containing missing values or values outside the scale range
-## (`geom_line()`).
 ```
 
 
@@ -202,5 +188,5 @@ output:
 
 
 ```
-## [1] "Wed Jul 31 11:13:12 2024"
+## [1] "Fri Aug  2 07:13:17 2024"
 ```
