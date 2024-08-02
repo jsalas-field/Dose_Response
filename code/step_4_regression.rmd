@@ -684,7 +684,7 @@ ggsave("nls_applications_vs_depth.png",
        limitsize = F)
 ```
 
-### Depth/Diameter Ratio Regression Plot
+#### Depth/Diameter Ratio Regression Plot
 
 ```{r}
 working_dat |>
