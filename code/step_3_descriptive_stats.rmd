@@ -29,7 +29,7 @@ rm(list = ls(all.names = TRUE))
 # Import the cleaned data - Point to the correct raw data directory
 
 ```{r echo = F}
-working_dat_dir <-"data/processed/working_dr.RData"
+working_dat_dir <- "data/processed/working_dr.RData"
 ```
 
 # Aesthetics
@@ -41,7 +41,7 @@ blank.plot <- theme_bw() +
         panel.grid.minor = element_blank(), 
         axis.line = element_line(colour = "black"),
         legend.title = element_blank(),
-        legend.justification="top")
+        legend.justification = "top")
 ```
 
 ## Import Subject Data
@@ -86,14 +86,14 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim=c(0,25)) +
+  coord_cartesian(ylim = c(0,25)) +
   ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
   labs(caption = "Caption") +
   blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+  theme(axis.text = element_text(size = 30, face = "bold"),
+        axis.title = element_text(size = 24,face = "bold")) 
 
 ggsave("raw_applications_vs_depth.png",
        path = "figures",
@@ -116,7 +116,7 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim=c(0,25)) +
+  coord_cartesian(ylim = c(0,25)) +
   ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
@@ -140,14 +140,14 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim=c(0,60)) +
+  coord_cartesian(ylim = c(0,60)) +
   ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
   labs(caption = "Caption") +
   blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+  theme(axis.text = element_text(size = 30, face = "bold"),
+        axis.title = element_text(size = 24,face = "bold")) 
 
 ggsave("raw_applications_vs_diameter.png",
        path = "figures",
@@ -198,8 +198,8 @@ working_dat |>
   ylab("Depth/Diameter Ratio") +
   labs(caption = "Caption") +
   blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+  theme(axis.text = element_text(size = 30, face = "bold"),
+        axis.title = element_text(size = 24,face = "bold")) 
 
 ggsave("raw_depth_diameter_ratio.png",
        path = "figures",

@@ -5,7 +5,7 @@ date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 library(dplyr)
 library(stringr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
@@ -14,7 +14,7 @@ knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 # Import the raw data - Point to the correct raw data directory
 
 ```{r}
-raw_data_dir <-"data/processed/imported_dr.RData"
+raw_data_dir <- "data/processed/imported_dr.RData"
 ```
 
 
@@ -52,7 +52,7 @@ save(working_dat,
 
 # Version and Package Details
 
-```{r echo=F}
+```{r echo = F}
 paste(version$version.string, version$nickname)
 paste0(
   "RStudio Version ",
