@@ -64,9 +64,8 @@ test_dat_2 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform
 ```
 
 ```{r}
-test_dat <- test_dat_1 |> full_join(test_dat_2)
+test_dat <- bind_rows(test_dat_1, test_dat_2)
 ```
-
 
 ## 15 kV Unipolar 20x5
 
@@ -89,12 +88,23 @@ drm_depth_asymp_grouped_4_ungrouped <- drm(
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 
-# Test for significance of group
-anova(drm_depth_asymp_grouped_4,drm_depth_asymp_grouped_4_ungrouped) 
+# Test for significance of group - who cares?
+#anova(drm_depth_asymp_grouped_4,drm_depth_asymp_grouped_4_ungrouped) 
 ```
 
 ```{r}
-confint(glht(drm_depth_asymp_grouped_4))
+#confint(glht(drm_depth_asymp_grouped_4)) # if confidence intervals for steepness overlap than no diff. Gives same result as "summary"
+summary(drm_depth_asymp_grouped_4)
+```
+
+```{r}
+compParm(drm_depth_asymp_grouped_4, "Steepness", "-")
+compParm(drm_depth_asymp_grouped_4, "Upper Limit", "-")
+```
+
+```{r}
+#ED(drm_depth_asymp_grouped_4, c(25, 50, 95))
+EDcomp(drm_depth_asymp_grouped_4, c(50,50))
 ```
 
 ```{r}
@@ -132,8 +142,8 @@ test_dat |>
 #### Depth
 
 ```{r}
-working_dat |>
-  ggplot(data = _, aes(x = application_num, y = depth)) +
+test_dat |>
+  ggplot(data = _, aes(x = application_num, y = depth, shape = group)) +
   geom_smooth(method = drm,
               method.args = list(fct = AR.2()),
               se = F) +
@@ -147,18 +157,18 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth (mm)") +
   labs(caption = "Caption") +
-  blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+  blank.plot 
+#  theme(axis.text=element_text(size=30, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
 
-ggsave("nls_applications_vs_depth.png",
-       path = "figures",
-       scale = 1,
-       width = 50,
-       height = 25,
-       units = "cm",
-       dpi = "retina",
-       limitsize = F)
+#ggsave("nls_applications_vs_depth.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 50,
+#       height = 25,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
 ```
 
 # Version and Package Details
