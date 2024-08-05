@@ -1,0 +1,195 @@
+---
+title: "Regression Modeling" 
+author: "Jonathan Salas"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    df_print: kable
+    fig_height: 6
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(sfsmisc)
+library(nlme)
+library(multcomp)
+library(sandwich)
+library(lmtest)
+library(aomisc)
+library(ggplot2)
+library(dplyr)
+knitr::opts_chunk$set(echo = F)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
+```
+
+# Import the cleaned data - Point to the correct raw data directory
+
+```{r echo = F}
+working_dat_dir <-"data/processed/working_dr.RData"
+```
+
+# Aesthetics
+
+```{r echo = F}
+blank.plot <- theme_bw() +
+  theme(panel.border = element_blank(), 
+        panel.grid.major = element_blank(), #this theme section generates a blank canvas
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        legend.title = element_blank(),
+        legend.justification="top")
+```
+
+## Import Subject Data
+```{r echo = F}
+load(working_dat_dir)
+```
+
+# Regression Fitting
+
+## Make Testing Data
+
+We take the original data and label it "og", then we take the depth data from "og", subtract 4 from depth and label it's group "og_minus4). 
+
+```{r}
+test_dat_1 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |>
+  mutate(group = "og")
+test_dat_2 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |> 
+  mutate(group = "og_minus4",
+         depth = depth + 9)
+```
+
+```{r}
+test_dat <- bind_rows(test_dat_1, test_dat_2)
+```
+
+## 15 kV Unipolar 20x5
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+https://rstats4ag.org/dose-response-curves.html
+
+Maybe let's do our compParm after fitting a model with no pmodel specifications, then we test if there's a significant difference in slope and/or upper limit. If we have no biological reason to assume that those values need to be different and we show that there is no statistical difference in for example, slope, then we would specify a common slope in pmodels and rerun our models.
+
+#### Depth
+
+```{r}
+#drm_depth_asymp_grouped_4_1 <- drm(
+#  depth ~ application_num,
+#  curveid = group,
+##  pmodels = list(~1,~1), # first variable in list lets you fix the upper limit, second lets you fix the slope.
+#  data = test_dat,
+#  fct = AR.2(names = c("Upper Limit", "Steepness"))
+#)
+
+drm_depth_asymp_grouped_4_1 <- nlme(depth ~ SSasympOrig(application_num, Asm, lrc), data=test_dat, 
+                    fixed= list(Asym + lrc ~ group),
+                    groups = group,
+                    random = ~ 1)
+```
+
+
+```{r}
+summary(drm_depth_asymp_grouped_4_1)
+summary(drm_depth_asymp_grouped_4_2)
+```
+
+
+```{r}
+#Test for significance of setting a common slope. Alternative hypothesis is that a common slope leads to a better model fit, i.e., a reduced model will fit significantly better than the more complex one where we estimate a slope for each group individually.
+anova(drm_depth_asymp_grouped_4_1,drm_depth_asymp_grouped_4_2) 
+```
+
+##### Diagnostic Plots
+
+distribution of residuals against the fitted value (variance homogeneity)
+q-q plot visualizes whether the residuals are normally distributed 
+
+```{r}
+qqnorm(residuals(drm_depth_asymp_grouped_4))
+ qqline(residuals(drm_depth_asymp_grouped_4))
+ 
+ par(mfrow = c(1, 2)) #put two graphs together
+    plot(residuals(drm_depth_asymp_grouped_4) ~ fitted(drm_depth_asymp_grouped_4), main="Residuals vs Fitted")
+abline(h=0)
+```
+
+
+##### Regression Results
+
+```{r}
+coeftest(drm_depth_asymp_grouped_4, vcov = sandwich) # if confidence intervals for steepness overlap than no diff. Gives same result as "summary". This is with Huber Sandwich Estimator i.e., robust standard errors but not White standard errors to be specific
+```
+
+```{r}
+#confint(glht(ED(drm_depth_asymp_grouped_4, c(50), interval = "delta", multcomp = TRUE, display = FALSE)))
+```
+
+```{r}
+compParm(drm_depth_asymp_grouped_4_1, "Steepness", "-")
+compParm(drm_depth_asymp_grouped_4_1, "Upper Limit", "-")
+```
+
+```{r}
+#ED(drm_depth_asymp_grouped_4, c(25, 50, 95))
+EDcomp(drm_depth_asymp_grouped_4_1, c(50,50))
+```
+
+
+```{r}
+test_dat |>
+  ggplot(data = _, aes(x = application_num, y = depth, group = group, color = group)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 20x5 Unipolar") +
+  xlab("Applications") +
+  ylab("Depth (mm)") +
+  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(5,20))+
+  blank.plot 
+#  theme(axis.text=element_text(size=40, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
+
+#ggsave("15kv20x5uni_depth.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 20,
+#       height = 28,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```
