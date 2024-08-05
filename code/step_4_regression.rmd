@@ -11,12 +11,11 @@ output:
 
 ```{r setup, include=FALSE}
 library(knitr)
-library(dplyr)
-library(ggplot2)
-library(emmeans)
-library(medrc)
-library(aomisc)
 library(sfsmisc)
+library(emmeans)
+library(aomisc)
+library(ggplot2)
+library(dplyr)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
