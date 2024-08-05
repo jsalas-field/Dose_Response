@@ -12,10 +12,7 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(ggplot2)
-library(emmeans)
-library(medrc)
-library(aomisc)
-library(sfsmisc)
+library(drc)
 library(dplyr)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
@@ -27,111 +24,38 @@ knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 rm(list = ls(all.names = TRUE))
 ```
 
-# Import the cleaned data - Point to the correct raw data directory
-
-```{r echo = F}
-working_dat_dir <-"data/processed/working_dr.RData"
-```
-
-## Import Subject Data
-```{r echo = F}
-load(working_dat_dir)
-```
-
-# Regression Fitting
-
-## 15 kV Unipolar 20x5
-
-### 2-Parameter Nonlinear Asymptotic Regression - NLS
-
-#### Depth
-
-```{r}
-nls_depth_asymp_4 <- nls(
-  depth ~ SSasympOrig(application_num, Asym, lrc),
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "20x5" &
-              waveform == "unipolar")
-)
-```
-
-```{r}
-summary(nls_depth_asymp_4)
-```
-
-```{r}
-temp <- working_dat |>
-  filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") 
-
-ggplot(data = temp, aes(x = application_num, y = depth)) +
-  geom_smooth(
-    method = nls,
-    se = F,
-    data = temp,
-    formula = depth ~ SSasympOrig(application_num, Asym, lrc),
-  )
-```
-
-```{r}
-troubleshooting_export <- temp |> dplyr::select(application_num, depth) |>
-  filter(application_num < 7) |>
-  rename(iv = application_num,
-         dv = depth) 
-
-
-```
-
 # Reprex
+
+Work from here: https://stackoverflow.com/questions/73775946/non-linear-mixed-models-with-categorical-covariates-obtain-parameter-estimates
 
 ```{r}
 df <- structure(list(iv = c(1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 
-2, 3, 4, 5, 6), dv = c(9.2, 8.5, 13.5, 15.8, 18.3, 17.7, 8.7, 
-10.8, 14.3, 15, 18, 15.3, 8.7, 14.6, 14.8, 16.8, 15.8, 15.8)), row.names = c(NA, 
--18L), class = c("tbl_df", "tbl", "data.frame"))
-
-drm_asymp <- drm(
-  dv ~ iv,
-  data = df,,
-  fct = AR.2(names = c("Asym", "lrc"))
-)
-
-drm_asymp
-
-ggplot(data = df, aes(x = iv, y = dv)) +
-  geom_smooth(
-    method = drm,
-    se = F,
-    data = df,
-    method.args = list(fct = AR.2()),
-  )
-
-nls_asymp <- nls(
-  dv ~ SSasympOrig(iv, Asym, lrc),
-  data = df
-)
-
-nls_asymp
-
-ggplot(data = df, aes(x = iv, y = dv)) +
-  geom_smooth(
-    method = nls,
-    se = F,
-    data = df
-  )
-
-ggplot(data = df, aes(x = iv, y = dv)) +
-  geom_smooth(
-    method = nls,
-    se = F,
-    data = df,
-    method.args = list(formula = dv ~ SSasympOrig(iv, Asym, lrc)),
-  )
-
-
-
+2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 
+5, 6), dv = c(9.2, 8.5, 13.5, 15.8, 18.3, 17.7, 8.7, 10.8, 14.3, 
+15, 18, 15.3, 8.7, 14.6, 14.8, 16.8, 15.8, 15.8, 14.2, 13.5, 
+18.5, 20.8, 23.3, 22.7, 13.7, 15.8, 19.3, 20, 23, 20.3, 13.7, 
+19.6, 19.8, 21.8, 20.8, 20.8), group = c("1", "1", "1", "1", 
+"1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", 
+"1", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", 
+"2", "2", "2", "2", "2", "2")), row.names = c(NA, -36L), class = c("tbl_df", 
+"tbl", "data.frame"))
 ```
 
+```{r}
+drm_mod <- drm(
+  dv ~ iv,
+  curveid = group,
+  data = df,
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+nlme_mod <- nlme(dv ~ SSasympOrig(iv, Asm, lrc), data=df, 
+                    fixed= list(Asym + lrc ~ group),
+                #    groups = group,
+                    random = ~ 1)
+```
 
 
 
