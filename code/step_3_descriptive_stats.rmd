@@ -12,10 +12,10 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(janitor)
-library(dplyr)
 library(ggplot2)
 library(lme4)
 library(lmerTest)
+library(dplyr)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```

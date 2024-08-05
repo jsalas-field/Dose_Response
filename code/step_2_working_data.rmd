@@ -6,8 +6,8 @@ output: html_document
 ---
 
 ```{r setup, include = FALSE}
-library(dplyr)
 library(stringr)
+library(dplyr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
 
