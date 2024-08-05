@@ -11,12 +11,11 @@ output:
 
 ```{r setup, include=FALSE}
 library(knitr)
-library(dplyr)
-library(ggplot2)
-library(emmeans)
-library(medrc)
-library(aomisc)
 library(sfsmisc)
+library(emmeans)
+library(aomisc)
+library(ggplot2)
+library(dplyr)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
@@ -673,18 +672,18 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
   labs(caption = "Caption") +
-  blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
+  blank.plot 
+#  theme(axis.text=element_text(size=30, face = "bold"),
         axis.title=element_text(size=24,face="bold")) 
 
-ggsave("depth_diameter_ratio_dr.png",
-       path = "figures",
-       scale = 1,
-       width = 50,
-       height = 25,
-       units = "cm",
-       dpi = "retina",
-       limitsize = F)
+#ggsave("depth_diameter_ratio_dr.png",
+#       path = "figures",
+#       scale = 1,
+##       width = 50,
+#       height = 25,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
 ```
 
 
