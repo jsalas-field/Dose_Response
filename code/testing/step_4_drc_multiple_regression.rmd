@@ -11,12 +11,11 @@ output:
 
 ```{r setup, include=FALSE}
 library(knitr)
-library(dplyr)
-library(ggplot2)
-library(emmeans)
-library(medrc)
-library(aomisc)
 library(sfsmisc)
+library(multcomp)
+library(aomisc)
+library(ggplot2)
+library(dplyr)
 knitr::opts_chunk$set(echo = F)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
@@ -82,10 +81,20 @@ drm_depth_asymp_grouped_4 <- drm(
   data = test_dat,
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
+
+drm_depth_asymp_grouped_4_ungrouped <- drm(
+  depth ~ application_num,
+#  curveid = group,
+  data = test_dat,
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+
+# Test for significance of group
+anova(drm_depth_asymp_grouped_4,drm_depth_asymp_grouped_4_ungrouped) 
 ```
 
 ```{r}
-summary(drm_depth_asymp_grouped_4)
+confint(glht(drm_depth_asymp_grouped_4))
 ```
 
 ```{r}
