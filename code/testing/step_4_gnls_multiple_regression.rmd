@@ -62,7 +62,7 @@ We take the original data and label it "og", then we take the depth data from "o
 test_dat_1 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |>
   mutate(group = "og")
 test_dat_2 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |> 
-  mutate(group = "og_minus4",
+  mutate(group = "og_plus_9",
          depth = depth + 9)
 ```
 
