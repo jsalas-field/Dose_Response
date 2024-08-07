@@ -235,11 +235,6 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_4_regression_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 ```
@@ -256,9 +251,8 @@ output:
 ```
 
 ```
-## Warning: Removed 4 rows containing non-finite outside the scale range (`stat_smooth()`).
-## Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
+## Warning: Removed 4 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
 ```
 
 #### Diameter
@@ -293,11 +287,6 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_4_regression_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
 
 ```
@@ -305,9 +294,8 @@ output:
 ```
 
 ```
-## Warning: Removed 6 rows containing non-finite outside the scale range (`stat_smooth()`).
-## Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
+## Warning: Removed 6 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
 ```
 
 #### Depth/Diameter Ratio
@@ -350,11 +338,6 @@ output:
 ```
 ## Warning: Removed 6 rows containing non-finite outside the scale range
 ## (`stat_smooth()`).
-```
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
 ```
 
 ![](step_4_regression_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
@@ -661,38 +644,58 @@ output:
 
 
 
+
+
+```
+## 
+## Model fitted: Asymptotic regression with lower limit at 0 (2 parms)
+## 
+## Parameter estimates:
+## 
+##                          Estimate Std. Error t-value   p-value    
+## Upper Limit:(Intercept) 43.612759   0.339523  128.45 < 2.2e-16 ***
+## Steepness:(Intercept)    0.666417   0.046377   14.37 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error:
+## 
+##  1.872366 (38 degrees of freedom)
+```
+
 ```
 ## 
 ## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
-##     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == 
+##     subset = (voltage == 15 & pulse_seq == "3x12x3" & waveform == 
 ##         "unipolar"))
 ## Residuals:
 ##       Min        1Q    Median        3Q       Max 
-## -0.070874 -0.021965 -0.003102  0.026921  0.112490 
+## -0.104481 -0.010899 -0.000138  0.008876  0.043340 
 ## 
 ## Coefficients:
 ##                 Value   Std. Error t value
-## (Intercept)      0.3686  0.0154    24.0098
-## application_num -0.0055  0.0026    -2.1570
+## (Intercept)      0.2914  0.0061    47.6864
+## application_num  0.0030  0.0010     3.0915
 ## 
-## Residual standard error: 0.03787 on 36 degrees of freedom
+## Residual standard error: 0.01611 on 38 degrees of freedom
 ```
 
 ```
 ## 
 ## 	robust F-test (as if non-random weights)
 ## 
-## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == from         "unipolar"))
-## F = 4.728, p-value = 0.03633
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "3x12x3" & waveform == from         "unipolar"))
+## F = 8.395, p-value = 0.006213
 ## alternative hypothesis: true application_num is not equal to 0
 ```
 
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
+## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-54-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
 
 
 
@@ -710,12 +713,7 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
-![](step_4_regression_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-56-1.png)<!-- -->
 
 #### Depth
 
@@ -729,12 +727,7 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
-![](step_4_regression_files/figure-html/unnamed-chunk-56-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-57-1.png)<!-- -->
 
 #### Depth/Diameter Ratio Regression Plot
 
@@ -748,21 +741,15 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
-![](step_4_regression_files/figure-html/unnamed-chunk-57-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-58-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
 ```
-## Warning: Removed 6 rows containing non-finite outside the scale range (`stat_smooth()`).
-## Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
+## Warning: Removed 6 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
 ```
 
 # Version and Package Details
@@ -796,5 +783,5 @@ output:
 
 
 ```
-## [1] "Wed Aug  7 08:52:41 2024"
+## [1] "Wed Aug  7 09:24:40 2024"
 ```

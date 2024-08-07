@@ -54,18 +54,7 @@ output:
 
 ### Depth Dose-Response - Line Plots
 
-
-```
-## Warning: Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
-
-```
-## Warning: Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
 
 ### Depth Dose-Response - Smoothed Line Plots
 
@@ -79,29 +68,13 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 ## Diameter Dose-Response
 
 ### Diameter line plots 
 
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
 
 ### Diameter Dose-Response - Smoothed Line Plots
 
@@ -115,29 +88,13 @@ output:
 ## (`stat_smooth()`).
 ```
 
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 ## Depth/Diameter Ratio
 
 ### Depth/Diameter Ratio line plots 
 
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
 
 
 ### Depth/Diameter Ratio LOESS line plots 
@@ -150,11 +107,6 @@ output:
 ```
 ## Warning: Removed 6 rows containing non-finite outside the scale range
 ## (`stat_smooth()`).
-```
-
-```
-## Warning: Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
 ```
 
 ![](step_3_descriptive_stats_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
@@ -189,5 +141,5 @@ output:
 
 
 ```
-## [1] "Wed Aug  7 09:05:07 2024"
+## [1] "Wed Aug  7 09:25:12 2024"
 ```

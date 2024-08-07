@@ -90,7 +90,7 @@ working_dat |>
 #  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
-#  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
@@ -117,10 +117,10 @@ working_dat |>
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   coord_cartesian(ylim = c(0,25)) +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
-  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot
 ```
 
@@ -141,10 +141,10 @@ working_dat |>
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   coord_cartesian(ylim = c(0,60)) +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
-  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
@@ -170,10 +170,10 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  ggtitle("Title") +
+ # ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
-  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot
 ```
 
@@ -193,10 +193,10 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
-  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
@@ -226,10 +226,10 @@ working_dat |>
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  ggtitle("Title") +
+ # ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
-  labs(caption = "Caption") +
+# labs(caption = "Caption") +
   blank.plot
 ```
 
