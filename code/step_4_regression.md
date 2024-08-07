@@ -1,7 +1,7 @@
 ---
 title: "Regression Modeling" 
 author: "Jonathan Salas"
-date: "02 August, 2024"
+date: "07 August, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -227,11 +227,29 @@ output:
 ```
 
 ```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 4 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+```
+
+```
 ## Warning: Removed 4 rows containing missing values or values outside the scale range
 ## (`geom_point()`).
 ```
 
 ![](step_4_regression_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+```
+## Warning: Removed 4 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+```
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -465,14 +483,14 @@ output:
 ## Parameter estimates:
 ## 
 ##                         Estimate Std. Error t-value   p-value    
-## Upper Limit:(Intercept) 17.16648    0.39087 43.9181 < 2.2e-16 ***
-## Steepness:(Intercept)    1.60711    0.16605  9.6785  1.97e-10 ***
+## Upper Limit:(Intercept) 17.25137    0.44470 38.7936 < 2.2e-16 ***
+## Steepness:(Intercept)    1.60752    0.20058  8.0142  1.61e-09 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error:
 ## 
-##  1.439016 (28 degrees of freedom)
+##  1.765625 (36 degrees of freedom)
 ```
 
 
@@ -498,14 +516,14 @@ output:
 ## Parameter estimates:
 ## 
 ##                         Estimate Std. Error t-value   p-value    
-## Upper Limit:(Intercept) 55.29198    1.24746  44.324 < 2.2e-16 ***
-## Steepness:(Intercept)    2.11178    0.17611  11.991 1.515e-12 ***
+## Upper Limit:(Intercept) 54.61893    1.59619 34.2183 < 2.2e-16 ***
+## Steepness:(Intercept)    2.16594    0.23647  9.1595 6.144e-11 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error:
 ## 
-##  3.868866 (28 degrees of freedom)
+##  4.85146 (36 degrees of freedom)
 ```
 
 
@@ -531,14 +549,14 @@ output:
 ##         "unipolar"))
 ## Residuals:
 ##       Min        1Q    Median        3Q       Max 
-## -0.065463 -0.020227  0.002115  0.027351  0.119065 
+## -0.070874 -0.021965 -0.003102  0.026921  0.112490 
 ## 
 ## Coefficients:
 ##                 Value   Std. Error t value
-## (Intercept)      0.3612  0.0136    26.6386
-## application_num -0.0052  0.0022    -2.3597
+## (Intercept)      0.3686  0.0154    24.0098
+## application_num -0.0055  0.0026    -2.1570
 ## 
-## Residual standard error: 0.0373 on 28 degrees of freedom
+## Residual standard error: 0.03787 on 36 degrees of freedom
 ```
 
 ```
@@ -546,7 +564,7 @@ output:
 ## 	robust F-test (as if non-random weights)
 ## 
 ## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == from         "unipolar"))
-## F = 5.5857, p-value = 0.02528
+## F = 4.728, p-value = 0.03633
 ## alternative hypothesis: true application_num is not equal to 0
 ```
 
@@ -557,7 +575,128 @@ output:
 
 ![](step_4_regression_files/figure-html/unnamed-chunk-44-1.png)<!-- -->
 
-### Summary Plot
+## 15 kV Unipolar 3x12x3
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+#### Depth
+
+
+
+
+```
+## 
+## Model fitted: Asymptotic regression with lower limit at 0 (2 parms)
+## 
+## Parameter estimates:
+## 
+##                         Estimate Std. Error t-value   p-value    
+## Upper Limit:(Intercept) 14.08391    0.13381 105.257 < 2.2e-16 ***
+## Steepness:(Intercept)    1.27207    0.06391  19.904 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error:
+## 
+##  0.6376224 (38 degrees of freedom)
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-47-1.png)<!-- -->
+
+#### Diameter
+
+
+
+
+
+
+```
+## 
+## Model fitted: Asymptotic regression with lower limit at 0 (2 parms)
+## 
+## Parameter estimates:
+## 
+##                          Estimate Std. Error t-value   p-value    
+## Upper Limit:(Intercept) 43.612759   0.339523  128.45 < 2.2e-16 ***
+## Steepness:(Intercept)    0.666417   0.046377   14.37 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error:
+## 
+##  1.872366 (38 degrees of freedom)
+```
+
+```
+## 
+## Call: rlm(formula = diameter ~ application_num, data = working_dat, 
+##     subset = (voltage == 15 & pulse_seq == "3x12x3" & waveform == 
+##         "unipolar"))
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.3081 -1.5902  0.2502  1.1705  2.8514 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)     37.3879  0.5910    63.2622
+## application_num  0.9202  0.0952     9.6614
+## 
+## Residual standard error: 1.735 on 38 degrees of freedom
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-51-1.png)<!-- -->
+
+#### Depth/Diameter Ratio
+
+
+
+
+```
+## 
+## Call: rlm(formula = depth_per_width ~ application_num, data = working_dat, 
+##     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == 
+##         "unipolar"))
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.070874 -0.021965 -0.003102  0.026921  0.112490 
+## 
+## Coefficients:
+##                 Value   Std. Error t value
+## (Intercept)      0.3686  0.0154    24.0098
+## application_num -0.0055  0.0026    -2.1570
+## 
+## Residual standard error: 0.03787 on 36 degrees of freedom
+```
+
+```
+## 
+## 	robust F-test (as if non-random weights)
+## 
+## data:  from rlm(formula = depth_per_width ~ application_num, data = working_dat, from     subset = (voltage == 15 & pulse_seq == "20x5" & waveform == from         "unipolar"))
+## F = 4.728, p-value = 0.03633
+## alternative hypothesis: true application_num is not equal to 0
+```
+
+
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](step_4_regression_files/figure-html/unnamed-chunk-54-1.png)<!-- -->
+
+
+
+## Summary Plot
 
 #### Diameter
 
@@ -576,17 +715,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
-
-```
-## `geom_smooth()` using formula = 'y ~ x'
-```
-
-```
-## Warning: Removed 6 rows containing non-finite outside the scale range (`stat_smooth()`).
-## Removed 6 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
+![](step_4_regression_files/figure-html/unnamed-chunk-55-1.png)<!-- -->
 
 #### Depth
 
@@ -605,19 +734,9 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-46-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-56-1.png)<!-- -->
 
-```
-## `geom_smooth()` using formula = 'y ~ x'
-```
-
-```
-## Warning: Removed 4 rows containing non-finite outside the scale range (`stat_smooth()`).
-## Removed 4 rows containing missing values or values outside the scale range
-## (`geom_point()`).
-```
-
-### Depth/Diameter Ratio Regression Plot
+#### Depth/Diameter Ratio Regression Plot
 
 
 ```
@@ -634,7 +753,7 @@ output:
 ## (`geom_point()`).
 ```
 
-![](step_4_regression_files/figure-html/unnamed-chunk-47-1.png)<!-- -->
+![](step_4_regression_files/figure-html/unnamed-chunk-57-1.png)<!-- -->
 
 ```
 ## `geom_smooth()` using formula = 'y ~ x'
@@ -659,23 +778,17 @@ output:
 
 <div class="kable-table">
 
-|         |package  |loadedversion |
-|:--------|:--------|:-------------|
-|aomisc   |aomisc   |0.652         |
-|dplyr    |dplyr    |1.1.4         |
-|drc      |drc      |3.2-0         |
-|drcData  |drcData  |1.1-3         |
-|emmeans  |emmeans  |1.10.2        |
-|ggplot2  |ggplot2  |3.5.1         |
-|knitr    |knitr    |1.47          |
-|MASS     |MASS     |7.3-61        |
-|Matrix   |Matrix   |1.7-0         |
-|medrc    |medrc    |1.1-0         |
-|metadat  |metadat  |1.2-0         |
-|metafor  |metafor  |4.6-0         |
-|nlme     |nlme     |3.1-165       |
-|numDeriv |numDeriv |2016.8-1.1    |
-|sfsmisc  |sfsmisc  |1.1-18        |
+|        |package |loadedversion |
+|:-------|:-------|:-------------|
+|aomisc  |aomisc  |0.652         |
+|dplyr   |dplyr   |1.1.4         |
+|drc     |drc     |3.2-0         |
+|drcData |drcData |1.1-3         |
+|emmeans |emmeans |1.10.2        |
+|ggplot2 |ggplot2 |3.5.1         |
+|knitr   |knitr   |1.47          |
+|MASS    |MASS    |7.3-61        |
+|sfsmisc |sfsmisc |1.1-18        |
 
 </div>
 
@@ -683,5 +796,5 @@ output:
 
 
 ```
-## [1] "Fri Aug  2 07:13:28 2024"
+## [1] "Wed Aug  7 08:52:41 2024"
 ```

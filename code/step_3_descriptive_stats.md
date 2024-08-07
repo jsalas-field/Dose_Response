@@ -1,7 +1,7 @@
 ---
 title: "Dose-Response Descriptive Statistics" 
 author: "Jonathan Salas"
-date: "02 August, 2024"
+date: "07 August, 2024"
 output: 
   html_document: 
     df_print: kable
@@ -43,7 +43,8 @@ output:
 |bipolar     |10      |20x5      | 30|         5.25|     1.000|           17.35|        2.750|                   0.31|              0.0275|
 |fast-switch |10      |10x5      | 30|         9.35|     2.925|           23.00|        1.075|                   0.41|              0.1225|
 |unipolar    |15      |15x5      | 30|        16.00|     7.925|           41.00|       12.000|                   0.39|              0.0925|
-|unipolar    |15      |20x5      | 30|        15.75|     3.000|           52.00|       12.400|                   0.33|              0.0400|
+|unipolar    |15      |20x5      | 38|        15.80|     3.350|           50.20|       13.750|                   0.33|              0.0475|
+|unipolar    |15      |3x12x3    | 40|        14.00|     1.250|           43.00|        4.250|                   0.31|              0.0200|
 
 </div>
 
@@ -188,5 +189,5 @@ output:
 
 
 ```
-## [1] "Fri Aug  2 07:13:17 2024"
+## [1] "Wed Aug  7 09:05:07 2024"
 ```
