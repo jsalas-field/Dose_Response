@@ -11,6 +11,12 @@ library(dplyr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
 
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
+```
+
 # Import the raw data - Point to the correct raw data directory
 
 ```{r}
@@ -23,12 +29,22 @@ raw_data_dir <- "data/processed/imported_dr.RData"
 load(raw_data_dir)
 ```
 
-## Calculate derived statistics
+## Correct Data Types & Calculate derived statistics
 
 ```{r}
 cleaned_res <- cleaned_res |>
   mutate(
-    depth_per_width = round(depth/diameter,2)
+    id = factor(id),
+    lesion_num = as.numeric(lesion_num),
+    n_uni = as.numeric(n_uni),
+    n_bipolar = as.numeric(n_bipolar),
+    n_biphasic = as.numeric(n_biphasic),
+    depth = as.numeric(depth),
+    diameter = as.numeric(diameter),
+    # Derived stats
+    depth_per_width = depth/diameter,
+    # Rounding
+    across(where(is.numeric), \(x) round(x, 2))
   ) 
 ```
 
