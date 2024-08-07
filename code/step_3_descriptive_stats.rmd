@@ -81,16 +81,16 @@ working_dat |>
     y = depth,
     group = id
   )) +
-  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
+  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm=T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   coord_cartesian(ylim = c(0,25)) +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
-  labs(caption = "Caption") +
+#  labs(caption = "Caption") +
   blank.plot +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
@@ -98,7 +98,7 @@ working_dat |>
 ggsave("raw_applications_vs_depth.png",
        path = "figures",
        scale = 1,
-       width = 50,
+       width = 60,
        height = 25,
        units = "cm",
        dpi = "retina",
@@ -111,7 +111,7 @@ ggsave("raw_applications_vs_depth.png",
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
-  geom_point(size = 3) +
+  geom_jitter(size = 4, na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -135,7 +135,7 @@ working_dat |>
     y = diameter,
     group = id
   )) +
-  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
+  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -152,7 +152,7 @@ working_dat |>
 ggsave("raw_applications_vs_diameter.png",
        path = "figures",
        scale = 1,
-       width = 50,
+       width = 60,
        height = 25,
        units = "cm",
        dpi = "retina",
@@ -165,7 +165,7 @@ ggsave("raw_applications_vs_diameter.png",
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(span = 10) +
-  geom_point(size = 3) +
+  geom_jitter(size = 4, na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -188,7 +188,7 @@ working_dat |>
     y = depth_per_width,
     group = id
   )) +
-  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
+  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -204,7 +204,7 @@ working_dat |>
 ggsave("raw_depth_diameter_ratio.png",
        path = "figures",
        scale = 1,
-       width = 50,
+       width = 60,
        height = 25,
        units = "cm",
        dpi = "retina",
@@ -220,7 +220,7 @@ working_dat |>
     x = application_num,
     y = depth_per_width
   )) +
-  geom_point(size = 4) +
+  geom_jitter(size = 4, na.rm = T) +
   geom_smooth(span = 10) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
