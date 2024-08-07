@@ -243,6 +243,8 @@ working_dat |>
   geom_smooth(method = drm,
               method.args = list(fct = AR.2()),
               se = F) +
+    geom_smooth(method = rlm,
+              se = F) +
   geom_jitter(width = 0.2, size = 4) + 
   scale_x_continuous(
     labels = unique(working_dat$application_num),
@@ -617,7 +619,171 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
   blank.plot 
 ```
 
-### Summary Plot
+## 15 kV Unipolar 3x12x3
+
+### 2-Parameter Nonlinear Asymptotic Regression
+
+#### Depth
+
+```{r}
+drm_depth_asymp_5 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "3x12x3" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+summary(drm_depth_asymp_5)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 3x12x3 Unipolar") +
+  xlab("Applications") +
+  ylab("Depth (mm)") +
+#  labs(caption = "Caption") + 
+  coord_cartesian(ylim=c(3, 18))+
+  blank.plot 
+#  theme(axis.text=element_text(size=40, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
+
+#ggsave("15kv3x12x3uni_depth.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 20,
+#       height = 28,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
+```
+
+#### Diameter
+
+```{r}
+drm_diameter_asymp_5 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "3x12x3" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+rlm_diameter_asymp_5 <- rlm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "3x12x3" & 
+              waveform == "unipolar"),
+)
+```
+
+```{r}
+summary(drm_diameter_asymp_5)
+summary(rlm_diameter_asymp_5)
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+#    geom_smooth(method = rlm,
+#              se = F) +
+  geom_jitter(width = 0.2, size = 4) + 
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 3x12x3 Unipolar") +
+  xlab("Applications") +
+  ylab("Diameter (mm)") +
+#  labs(caption = "Caption") +
+#  coord_cartesian(ylim=c(20,60)) +
+  blank.plot 
+#  theme(axis.text=element_text(size=40, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
+
+#ggsave("15kv20x5uni_diameter.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 20,
+#       height = 28,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
+```
+
+#### Depth/Diameter Ratio
+
+```{r}
+drm_depth_ratio_5 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "3x12x3" & 
+              waveform == "unipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+rlm_depth_ratio_5 <- rlm(
+  depth_per_width ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "3x12x3" & 
+              waveform == "unipolar"))
+```
+
+```{r}
+summary(drm_depth_ratio_5)
+summary(rlm_depth_ratio_5)
+f.robftest(rlm_depth_ratio_5,"application_num")
+```
+
+```{r}
+working_dat |>
+  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
+  ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_jitter(width = 0.2, size = 4) +
+  geom_smooth(method = "rlm", se = T) +
+  geom_smooth(method = drm,
+              method.args = list(fct = AR.2()),
+              se = F) +
+  scale_x_continuous(
+    labels = unique(working_dat$application_num),
+    breaks = unique(working_dat$application_num)
+  ) +
+  ggtitle("15kV 3x12x3 Bipolar") +
+  xlab("Applications") +
+  ylab("Depth per Diameter") +
+  #  labs(caption = "Caption") +
+  #  coord_cartesian(ylim=c(10,20)) +
+  blank.plot 
+```
+
+
+
+## Summary Plot
 
 #### Diameter
 
@@ -633,22 +799,22 @@ working_dat |>
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   coord_cartesian(ylim=c(0,60)) +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
-  labs(caption = "Caption") +
-  blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+#  labs(caption = "Caption") +
+  blank.plot 
+#  theme(axis.text=element_text(size=30, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
 
-ggsave("nls_applications_vs_diameter.png",
-       path = "figures",
-       scale = 1,
-       width = 50,
-       height = 25,
-       units = "cm",
-       dpi = "retina",
-       limitsize = F)
+#ggsave("drm_applications_vs_diameter.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 50,
+#       height = 25,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
 ```
 
 #### Depth
@@ -665,22 +831,22 @@ working_dat |>
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
   coord_cartesian(ylim=c(0,25)) +
-  ggtitle("Title") +
+#  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
-  labs(caption = "Caption") +
-  blank.plot +
-  theme(axis.text=element_text(size=30, face = "bold"),
-        axis.title=element_text(size=24,face="bold")) 
+#  labs(caption = "Caption") +
+  blank.plot 
+#  theme(axis.text=element_text(size=30, face = "bold"),
+#        axis.title=element_text(size=24,face="bold")) 
 
-ggsave("nls_applications_vs_depth.png",
-       path = "figures",
-       scale = 1,
-       width = 50,
-       height = 25,
-       units = "cm",
-       dpi = "retina",
-       limitsize = F)
+#ggsave("drm_applications_vs_depth.png",
+#       path = "figures",
+#       scale = 1,
+#       width = 50,
+#       height = 25,
+#       units = "cm",
+#       dpi = "retina",
+#       limitsize = F)
 ```
 
 #### Depth/Diameter Ratio Regression Plot
