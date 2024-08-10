@@ -50,13 +50,14 @@ cleaned_res <- cleaned_res |>
 
 # Make Analysis Data
  
-We exclude the fast-switch data from the 04022024Potato experiment because here we varied ratio of bipolar to unipolar applications to assess depth & diameter. Isn't directly comparable to the bulk of the data
+We exclude the fast-switch data from the 04022024Potato experiment because here we varied ratio of bipolar to unipolar applications to assess depth & diameter. Isn't directly comparable to the bulk of the data. We thus exclude the 10x5 bipolar 04022024Potato data (n=30)
+
+We also exclude the four 20x5 bipolar 15kV lesions from "3x12x3 potato tests_08_02_2024" per Roya's advise they were done with a different catheter which at this stage adds too much variability to the lesion data. (n=4)
 
 ```{r}
 working_dat <- cleaned_res |>
-  filter(experiment_id == "04022024Potato") |> 
-  filter(waveform == "fast-switch") |>
-  anti_join(x = cleaned_res)
+  filter(!(experiment_id == "04022024Potato" & pulse_seq == "10x5" )) |> 
+  filter(!(experiment_id == "3x12x3 potato tests_08_02_2024" & pulse_seq == "20x5")) 
 ```
 
 # Save cleaned data
