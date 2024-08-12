@@ -12,6 +12,12 @@ library(dplyr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
 ```
 
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
+```
+
 # Import the raw data - Point to the correct raw data directory
 
 ```{r}
