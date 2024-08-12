@@ -39,6 +39,7 @@ cleaned_res <- cleaned_res |>
     n_uni = as.numeric(n_uni),
     n_bipolar = as.numeric(n_bipolar),
     n_biphasic = as.numeric(n_biphasic),
+    n_train_rep = as.numeric(n_train_rep),
     depth = as.numeric(depth),
     diameter = as.numeric(diameter),
     # Derived stats
@@ -54,16 +55,33 @@ We exclude the fast-switch data from the 04022024Potato experiment because here 
 
 We also exclude the four 20x5 bipolar 15kV lesions from "3x12x3 potato tests_08_02_2024" per Roya's advise they were done with a different catheter which at this stage adds too much variability to the lesion data. (n=4)
 
+At some point in August 2024, someone changed the file name from "3x12x3 potato tests_08_02_202" to "unipolar-3x12x3-08_02_2024"
+
+We will exclude the non-3x12x3 data from the "unipolar-3x12x3-08_02_2024" experiment in  working_dat and include it in full_curve_3x12x3
+
+
 ```{r}
 working_dat <- cleaned_res |>
   filter(!(experiment_id == "04022024Potato" & pulse_seq == "10x5" )) |> 
-  filter(!(experiment_id == "3x12x3 potato tests_08_02_2024" & pulse_seq == "20x5")) 
+  filter(!(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq == "20x5")) |>
+  filter(!(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq != "3x12x3"))
+```
+
+```{r}
+temp <- cleaned_res |> anti_join(y = working_dat)
+```
+
+```{r}
+full_curve_3x12x3 <- cleaned_res |>
+  filter(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq != "20x5") |>mutate(pulses = n_uni*n_train_rep*application_num) |>
+  arrange(pulses)
 ```
 
 # Save cleaned data
 
 ```{r}
 save(working_dat, 
+     full_curve_3x12x3,
      file = paste0("data/processed/working_dr.RData"))
 ```
 

@@ -13,6 +13,7 @@ output:
 library(knitr)
 library(sfsmisc)
 library(emmeans)
+library(sandwich)
 library(aomisc)
 library(ggplot2)
 library(dplyr)
@@ -53,9 +54,9 @@ load(working_dat_dir)
 
 ## 15 kV Unipolar 3x12x3
 
-### 2-Parameter Nonlinear Asymptotic Regression
+### Depth
 
-#### Depth
+#### Model Selection
 
 ```{r}
 drm_depth_asymp_5 <- drm(
@@ -67,8 +68,6 @@ drm_depth_asymp_5 <- drm(
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 ```
-
-##### Model Selection 
 
 ```{r}
 mselect(
@@ -84,8 +83,10 @@ mselect(
 )
 ```
 
+#### 3-Parameter Log-Logistic Regression
+
 ```{r}
-drm_depth_ll_5 <- drm(
+drm_depth_5 <- drm(
   depth ~ application_num,
   data = working_dat,
   subset = (voltage == 15 &
@@ -95,22 +96,24 @@ drm_depth_ll_5 <- drm(
 )
 ```
 
+##### Post-Hoc
+
 ```{r}
-summary(drm_depth_asymp_5)
-summary(drm_depth_ll_5)
+summary(drm_depth_5)
 ```
 
 ```{r}
-PR(drm_depth_asymp_5, c(seq_along(1:10)))
-PR(drm_depth_ll_5, c(seq_along(1:10)))
+PR(drm_depth_5, c(seq_along(1:10)))
 ```
+
+#### Plotting
 
 ```{r}
 working_dat |>
   filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
+              method.args = list(fct = LL.3()),
               se = F) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
   scale_x_continuous(
@@ -138,6 +141,7 @@ working_dat |>
 
 ### Full Depth Curve
 
+#### Model Selection 
 
 ```{r}
 drm_full_depth_ll_5 <- drm(
@@ -168,8 +172,15 @@ mselect(
 )
 ```
 
+#### Four-Parameter Weibull Type 1 
+
+https://setac.onlinelibrary.wiley.com/doi/10.1002/etc.7
+
+The present study considers four different classes of sigmoidal dose–response models with horizontal asymptotes or limits at the extremes of the dose range. It will be shown below that these four classes encompass many of the dose–response models that are useful to ecotoxicologists. The classes are called log-logistic models, log-normal models, Weibull-1 models, and Weibull-2 models
+
+https://www.r-bloggers.com/2019/11/five-parameters-logistic-regression/
+
 ```{r}
-# https://www.r-bloggers.com/2019/11/five-parameters-logistic-regression/
 drm_full_depth_5 <- drm(
   depth ~ pulses,
   data = full_curve_3x12x3,
@@ -179,26 +190,37 @@ drm_full_depth_5 <- drm(
 )
 ```
 
+##### Post-Hoc
+
 ```{r}
 summary(drm_full_depth_5)
 ```
 
-
 ```{r}
-depth_fitted <- as.data.frame(cbind(pulses = full_curve_3x12x3$pulses, predict(drm_full_depth_5, interval = "confidence", level = 0.95, vcov = sandwich))) |> unique()
-
-ED50_pulses_pred <- as.data.frame(ED(drm_full_depth_5,50, interval = "delta", vcov = sandwich))
-
-ED50_depth_pred <- as.data.frame(cbind("ED50_pulses" = ED50_pulses_pred$Estimate, (t(
+depth_fitted <- as.data.frame(cbind(
+  pulses = full_curve_3x12x3$pulses,
   predict(
-    #Predict depth as ED50 and return robust confidence intervals
     drm_full_depth_5,
-    newdata = data.frame(pulses = ED50_pulses_pred$Estimate),
+    interval = "confidence",
+    level = 0.95,
+    vcov = sandwich
+  )
+)) |> unique()
+
+EC50_pulses_pred <- as.data.frame(ED(drm_full_depth_5, 50, interval = "delta", vcov = sandwich))
+
+EC50_depth_pred <- as.data.frame(cbind("EC50_pulses" = EC50_pulses_pred$Estimate, (t(
+  predict(
+    #Predict depth as EC50 and return robust confidence intervals
+    drm_full_depth_5,
+    newdata = data.frame(pulses = EC50_pulses_pred$Estimate),
     interval = "confidence",
     vcov = sandwich
   )
-)))) |> rename("ED50_depth"= Prediction)
+)))) |> rename("EC50_depth" = Prediction)
 ```
+
+#### Plotting 
 
 ```{r}
 ggplot(data = NULL) +
@@ -226,17 +248,17 @@ ggplot(data = NULL) +
     width = .3
   ) +
   geom_point(
-    data = ED50_depth_pred,
-    aes(x = ED50_pulses, y = ED50_depth),
-    size = 10,
+    data = EC50_depth_pred,
+    aes(x = EC50_pulses, y = EC50_depth),
+    size = 14,
     shape = 6,
     fill = "white",
     color = "black"
   ) +
-  geom_point(data = ED50_depth_pred,
-             aes(x = ED50_pulses, y = ED50_depth),
+  geom_point(data = EC50_depth_pred,
+             aes(x = EC50_pulses, y = EC50_depth),
              size = 2) +
-  geom_segment(data = ED50_pulses_pred,
+  geom_segment(data = EC50_pulses_pred,
                aes(
                  x = Lower,
                  y = 1,
@@ -250,11 +272,11 @@ ggplot(data = NULL) +
       unique(full_curve_3x12x3$pulses[full_curve_3x12x3$pulses > 108])
     ),
     breaks = unique(full_curve_3x12x3$pulses),
-    transform = "log2",
+    transform = "log",
     guide = guide_axis(angle = -45)
   ) +
   labs(
-    x = "log2(Pulses)",
+    x = "Log(Pulses)",
     y = "Depth (mm)",
     title = "4-Parameter Weibull Type 1 - 3x12x3",
     caption = "Regression line with Robust 95% confidence Intervals and Observed Values"
@@ -268,118 +290,232 @@ ggplot(data = NULL) +
 ggsave("15kv3x12x3uni_full_depth.png",
        path = "figures",
        scale = 1,
-       width = 28,
+       width = 42,
        height = 20,
        units = "cm",
        dpi = "retina",
        limitsize = F)
 ```
 
+### Diameter
 
-#### Diameter
+#### Model Selection
 
 ```{r}
-drm_diameter_asymp_5 <- drm(
+drm_diameter_l4_5 <- drm(
   diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
-  fct = AR.2(names = c("Upper Limit", "Steepness"))
+  data = full_curve_3x12x3,
+  fct = L.3()
 )
 ```
 
 ```{r}
-rlm_diameter_asymp_5 <- rlm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
+mselect(
+  drm_diameter_l4_5,
+  list(
+    L.3(),
+    L.4(),
+    LL.3(),
+    LL2.3(),
+    LL.4(),
+    LL2.4(),
+    W1.4(),
+    W2.4()
+  ),
+  linreg = T,
+  icfct = BIC
+)
+```
+
+#### Robust Log-Linear Regression 
+
+```{r}
+rlm_diameter_5 <- rlm(
+  diameter ~ log(pulses),
+  data = full_curve_3x12x3
 )
 ```
 
 ```{r}
-summary(drm_diameter_asymp_5)
-summary(rlm_diameter_asymp_5)
+BIC(drm_diameter_l4_5)
+BIC(rlm_diameter_5)
+```
+
+##### Post-Hoc 
+
+```{r}
+summary(rlm_diameter_5)
 ```
 
 ```{r}
-working_dat |>
-  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
-  ggplot(data = _, aes(x = application_num, y = diameter)) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-#    geom_smooth(method = rlm,
-#              se = F) +
-  geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  scale_x_continuous(
-    labels = unique(working_dat$application_num),
-    breaks = unique(working_dat$application_num)
+confint.default(object = rlm_diameter_5, parm = "log(pulses)", level = 0.95)
+```
+
+I need the median of the fitted function not the quantiles of the observed data
+
+```{r}
+#diameter = m*log(pulse) + intercept, so exp((diameter - intercept)/m) = pulse
+intercept <- coef(rlm_diameter_5)[["(Intercept)"]]
+m <- coef(rlm_diameter_5)[["log(pulses)"]]
+
+EC50_diameter <- quantile(full_curve_3x12x3$diameter, 0.5)
+EC50_pulse <- exp((EC50_diameter-intercept)/m)
+```
+
+#### Plotting
+
+```{r}
+diameter_fitted <- as.data.frame(cbind(
+  pulses = full_curve_3x12x3$pulses,
+  predict(
+    rlm_diameter_5,
+    interval = "confidence",
+    level = 0.95,
+    vcov = sandwich
+  )
+)) |> unique()
+```
+
+```{r}
+ggplot(data = NULL) +
+  geom_smooth(
+    data = full_curve_3x12x3,
+    aes(x = pulses, y = diameter),
+    method = rlm,
+    formula = y ~ x,
+    se = F,
+    linetype = "dashed",
+    color = "black"
   ) +
-  ggtitle("15kV 3x12x3 Unipolar") +
-  xlab("Applications") +
-  ylab("Diameter (mm)") +
-#  # labs(caption = "Caption") +
-#  coord_cartesian(ylim=c(20,60)) +
-  blank.plot 
-#  theme(axis.text=element_text(size=40, face = "bold"),
-#        axis.title=element_text(size=24,face="bold")) 
+  geom_jitter(data = full_curve_3x12x3,
+              aes(x = pulses, y = diameter, color = pulses),
+              size = 4) +
+  scale_colour_distiller(palette = "Spectral", direction = 1) +
+    geom_errorbar(
+    data = diameter_fitted,
+    aes(
+      x = pulses,
+      y = fit,
+      ymin = lwr,
+      ymax = upr
+    ),
+    width = .3
+  ) +
+  geom_point(
+    data = NULL,
+    aes(x = EC50_pulse, y = EC50_diameter),
+    size = 14,
+    shape = 6,
+    fill = "white",
+    color = "black"
+  ) +
+  geom_point(data = NULL,
+             aes(x = EC50_pulse, y = EC50_diameter),
+             size = 2) +
+#  geom_segment(data = EC50_pulses_pred,
+#               aes(
+#                 x = lwr,
+#                 y = 1,
+#                 xend = upr,
+#                 yend = 1
+#               ),
+#               color = "blue") +
+  scale_x_continuous(
+    labels = c(
+      unique(full_curve_3x12x3$pulse_seq),
+      unique(full_curve_3x12x3$pulses[full_curve_3x12x3$pulses > 108])
+    ),
+    breaks = unique(full_curve_3x12x3$pulses),
+    transform = "log",
+    guide = guide_axis(angle = -45)
+  ) +
+  labs(
+    x = "Log(Pulses)",
+    y = "Diameter (mm)",
+    title = "Robust Linear Regression - 3x12x3",
+    caption = "Regression line with Robust 95% confidence Intervals and Observed Values"
+  ) +
+  blank.plot +
+  theme(
+    axis.text = element_text(size = 20, face = "bold"),
+    axis.title = element_text(size = 24, face = "bold")
+  ) 
 
-#ggsave("15kv20x5uni_diameter.png",
-#       path = "figures",
-#       scale = 1,
-#       width = 20,
-#       height = 28,
-#       units = "cm",
-#       dpi = "retina",
-#       limitsize = F)
+ggsave("15kv3x12x3uni_full_diameter.png",
+       path = "figures",
+       scale = 1,
+       width = 42,
+       height = 20,
+       units = "cm",
+       dpi = "retina",
+       limitsize = F)
 ```
 
-#### Depth/Diameter Ratio
+### Depth/Diameter Ratio
 
 ```{r}
 drm_depth_ratio_5 <- drm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
+  diameter ~ pulses,
+  data = full_curve_3x12x3,
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 ```
 
+#### Model Selection
+
 ```{r}
-rlm_depth_ratio_5 <- rlm(
-  depth_per_width ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"))
+mselect(
+  drm_depth_ratio_5,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2() #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
+```
+
+#### 3-Parameter Log-Logistic Regression
+
+```{r}
+drm_depth_ratio_5 <- drm(
+  depth_per_width ~ pulses,
+  data = full_curve_3x12x3,
+  fct = LL2.3())
 ```
 
 ```{r}
 summary(drm_depth_ratio_5)
-summary(rlm_depth_ratio_5)
-f.robftest(rlm_depth_ratio_5,"application_num")
 ```
 
+#### Plotting 
+
 ```{r}
-working_dat |>
-  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
-  ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
-  geom_jitter(width = 0.2, size = 4, na.rm = T) +
-  geom_smooth(method = "rlm", se = T) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-  scale_x_continuous(
-    labels = unique(working_dat$application_num),
-    breaks = unique(working_dat$application_num)
+full_curve_3x12x3 |>
+  ggplot(data = _, aes(x = pulses, y = depth_per_width)) +
+  geom_jitter(width = 0.2,
+              size = 4,
+              na.rm = T) +
+  geom_smooth(method = "drm",
+              method.args = list(fct = LL2.3()),
+              se = F,
   ) +
-  ggtitle("15kV 3x12x3 Bipolar") +
-  xlab("Applications") +
+  #  geom_smooth(method = drm,
+  #              method.args = list(fct = AR.2()),
+  #              se = F) +
+  scale_x_continuous(
+    labels = c(
+      unique(full_curve_3x12x3$pulse_seq),
+      unique(full_curve_3x12x3$pulses[full_curve_3x12x3$pulses > 108])
+    ),
+    breaks = unique(full_curve_3x12x3$pulses),
+#    transform = "log",
+    guide = guide_axis(angle = -45)
+  ) +
+  ggtitle("15kV 3x12x3") +
+  xlab("Pulses") +
   ylab("Depth per Diameter") +
   #  # labs(caption = "Caption") +
   #  coord_cartesian(ylim=c(10,20)) +
