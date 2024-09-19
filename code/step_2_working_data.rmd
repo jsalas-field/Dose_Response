@@ -106,6 +106,7 @@ kissing_dat <- cleaned_res_2
 ```{r}
 save(working_dat, 
      full_curve_3x12x3,
+     kissing_dat,
      file = paste0("data/processed/working_dr.RData"))
 ```
 
