@@ -78,8 +78,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(
     x = application_num,
-    y = depth,
-    group = id
+    y = depth
   )) +
   geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm=T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
@@ -103,6 +102,31 @@ ggsave("raw_applications_vs_depth.png",
        units = "cm",
        dpi = "retina",
        limitsize = F)
+```
+#### 15kV 3x12x3 Unipolar Full Depth Curve
+
+```{r}
+temp <- colour_ramp(brewer_pal(
+          palette = "Spectral", direction = -1
+        )(11))(rescale(full_curve_3x12x3$pulses))
+```
+
+
+```{r}
+full_curve_3x12x3 |>
+  ggplot(data = _, aes(x = pulses, y = depth, color = factor(pulses))) +
+  geom_jitter(size = 4, na.rm = T) +
+  scale_x_continuous(
+#    labels = factor(full_curve_3x12x3$pulse_seq),
+#    breaks = full_curve_3x12x3$pulses,
+    transform = "log2"
+  ) +
+  #  coord_cartesian(ylim = c(0, 16)) +
+  #  ggtitle("Title") +
+  xlab("Pulses") +
+  ylab("Depth (mm)") +
+  # labs(caption = "Caption") +
+  blank.plot
 ```
 
 ### Depth Dose-Response - Smoothed Line Plots
@@ -132,8 +156,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(
     x = application_num,
-    y = diameter,
-    group = id
+    y = diameter
   )) +
   geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
@@ -157,6 +180,24 @@ ggsave("raw_applications_vs_diameter.png",
        units = "cm",
        dpi = "retina",
        limitsize = F)
+```
+#### 15kV 3x12x3 Unipolar Full Diameter Curve
+
+```{r}
+full_curve_3x12x3 |>
+  ggplot(data = _, aes(x = pulses, y = diameter)) +
+  geom_jitter(size = 4, na.rm = T) +
+  scale_x_continuous(
+    labels = factor(full_curve_3x12x3$pulse_seq),
+    breaks = full_curve_3x12x3$pulses,
+    trans = "log2"
+  ) +
+  #  coord_cartesian(ylim = c(0, 16)) +
+  #  ggtitle("Title") +
+  xlab("Pulses") +
+  ylab("Depth (mm)") +
+  # labs(caption = "Caption") +
+  blank.plot
 ```
 
 ### Diameter Dose-Response - Smoothed Line Plots
@@ -185,8 +226,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(
     x = application_num,
-    y = depth_per_width,
-    group = id
+    y = depth_per_width
   )) +
   geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
