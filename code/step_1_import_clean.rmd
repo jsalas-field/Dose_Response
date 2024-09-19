@@ -30,19 +30,23 @@ raw_data_dir <- "/Users/jonathansalas/R_Projects/Dose_Response/data/raw/dr_db.xl
 ```{r}
 raw_res <- read_excel(path = raw_data_dir,
                       sheet = "results")
+
+raw_res_2 <- read_excel(path = raw_data_dir,
+                      sheet = "kissing")
 ```
 
 ## Remove Empty Rows
 
 ```{r}
 cleaned_res <- janitor::remove_empty(raw_res, which = "rows")
+cleaned_res_2 <- janitor::remove_empty(raw_res_2, which = "rows")
 ```
 
 
 # Save cleaned data
 
 ```{r}
-save(cleaned_res, 
+save(cleaned_res, cleaned_res_2,
      file = paste0("data/processed/imported_dr.RData"))
 ```
 
