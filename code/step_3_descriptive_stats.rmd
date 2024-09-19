@@ -13,6 +13,7 @@ output:
 library(knitr)
 library(janitor)
 library(ggplot2)
+library(cowplot)
 library(lme4)
 library(lmerTest)
 library(dplyr)
@@ -30,18 +31,6 @@ rm(list = ls(all.names = TRUE))
 
 ```{r echo = F}
 working_dat_dir <- "data/processed/working_dr.RData"
-```
-
-# Aesthetics
-
-```{r echo = F}
-blank.plot <- theme_bw() +
-  theme(panel.border = element_blank(), 
-        panel.grid.major = element_blank(), #this theme section generates a blank canvas
-        panel.grid.minor = element_blank(), 
-        axis.line = element_line(colour = "black"),
-        legend.title = element_blank(),
-        legend.justification = "top")
 ```
 
 ## Import Subject Data
@@ -90,7 +79,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth (mm)") +
 # labs(caption = "Caption") +
-  blank.plot +
+  theme_cowplot(12) +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
 
@@ -126,7 +115,7 @@ full_curve_3x12x3 |>
   xlab("Pulses") +
   ylab("Depth (mm)") +
   # labs(caption = "Caption") +
-  blank.plot
+  theme_cowplot(12)
 ```
 
 ### Depth Dose-Response - Smoothed Line Plots
@@ -145,7 +134,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth (mm)") +
 # labs(caption = "Caption") +
-  blank.plot
+  theme_cowplot(12)
 ```
 
 ## Diameter Dose-Response
@@ -168,7 +157,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Diameter (mm)") +
 # labs(caption = "Caption") +
-  blank.plot +
+  theme_cowplot(12) +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
 
@@ -197,7 +186,7 @@ full_curve_3x12x3 |>
   xlab("Pulses") +
   ylab("Depth (mm)") +
   # labs(caption = "Caption") +
-  blank.plot
+  theme_cowplot(12)
 ```
 
 ### Diameter Dose-Response - Smoothed Line Plots
@@ -215,7 +204,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Diameter (mm)") +
 # labs(caption = "Caption") +
-  blank.plot
+  theme_cowplot(12)
 ```
 
 ## Depth/Diameter Ratio
@@ -237,7 +226,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
 # labs(caption = "Caption") +
-  blank.plot +
+  theme_cowplot(12) +
   theme(axis.text = element_text(size = 30, face = "bold"),
         axis.title = element_text(size = 24,face = "bold")) 
 
@@ -270,7 +259,7 @@ working_dat |>
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
 # labs(caption = "Caption") +
-  blank.plot
+  theme_cowplot(12)
 ```
 
 
