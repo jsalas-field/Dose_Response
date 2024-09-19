@@ -49,6 +49,26 @@ cleaned_res <- cleaned_res |>
   ) 
 ```
 
+```{r}
+cleaned_res_2 <- cleaned_res_2 |>
+  mutate(
+    id = factor(id),
+    lesion_num = as.numeric(lesion_num),
+    n_uni = as.numeric(n_uni),
+    n_bipolar = as.numeric(n_bipolar),
+    n_biphasic = as.numeric(n_biphasic),
+    n_train_rep = as.numeric(n_train_rep),
+    dimension = factor(dimension),
+    dim_value = as.numeric(dim_value),
+    transmural = factor(transmural),
+    # Derived stats
+
+    # Rounding
+    across(where(is.numeric), \(x) round(x, 2))
+  ) 
+```
+
+
 # Make Analysis Data
  
 We exclude the fast-switch data from the 04022024Potato experiment because here we varied ratio of bipolar to unipolar applications to assess depth & diameter. Isn't directly comparable to the bulk of the data. We thus exclude the 10x5 bipolar 04022024Potato data (n=30)
@@ -75,6 +95,10 @@ temp <- cleaned_res |> anti_join(y = working_dat)
 full_curve_3x12x3 <- cleaned_res |>
   filter(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq != "20x5") |>mutate(pulses = n_uni*n_train_rep*application_num) |>
   arrange(pulses)
+```
+
+```{r}
+kissing_dat <- cleaned_res_2 
 ```
 
 # Save cleaned data
