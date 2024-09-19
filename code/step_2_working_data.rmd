@@ -93,7 +93,8 @@ temp <- cleaned_res |> anti_join(y = working_dat)
 
 ```{r}
 full_curve_3x12x3 <- cleaned_res |>
-  filter(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq != "20x5") |>mutate(pulses = n_uni*n_train_rep*application_num) |>
+  filter(experiment_id == "unipolar-3x12x3-08_02_2024" & pulse_seq != "20x5") |>
+  mutate(pulses = n_uni*n_train_rep*application_num) |>
   arrange(pulses)
 ```
 
