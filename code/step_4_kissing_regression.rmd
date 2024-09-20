@@ -1,0 +1,75 @@
+---
+title: "Kissing Catheters Regression Modeling" 
+author: "Jonathan Salas"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    df_print: kable
+    fig_height: 6
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(emmeans)
+library(aomisc)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+knitr::opts_chunk$set(echo = F)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Start with a clean slate
+
+```{r echo = F}
+rm(list = ls(all.names = TRUE))
+```
+
+# Import the cleaned data - Point to the correct raw data directory
+
+```{r echo = F}
+working_dat_dir <-"data/processed/working_dr.RData"
+```
+
+## Import Subject Data
+
+```{r echo = F}
+load(working_dat_dir)
+```
+
+# Regression Fitting
+
+## 10kV 20x5 Bipolar 
+
+### Depth 
+
+#### Model Selection 
+
+#### Model
+
+##### Post-Hoc Tests
+
+#### Plotting
+
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```
