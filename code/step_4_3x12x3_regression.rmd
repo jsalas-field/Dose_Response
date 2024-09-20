@@ -12,7 +12,7 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(sfsmisc)
-library(emmeans)
+library(investr)
 library(sandwich)
 library(aomisc)
 library(ggplot2)
@@ -49,6 +49,15 @@ blank.plot <- theme_bw() +
 ```{r echo = F}
 load(working_dat_dir)
 ```
+
+# Organization Template: 
+## 10 kV Bipolar 10x5
+### Depth
+#### Model Selection
+#### [The Regression Model]
+##### Post-Hoc
+#### Plotting
+
 
 # Regression Fitting
 
@@ -147,7 +156,7 @@ working_dat |>
 drm_full_depth_ll_5 <- drm(
   depth ~ pulses,
   data = full_curve_3x12x3,
-  fct = LL2.4()
+  fct = LL.5()
 )
 ```
 
@@ -172,7 +181,7 @@ mselect(
 )
 ```
 
-#### Four-Parameter Weibull Type 1 
+#### Five-Parameter Log-Logistic 
 
 https://setac.onlinelibrary.wiley.com/doi/10.1002/etc.7
 
@@ -184,9 +193,8 @@ https://www.r-bloggers.com/2019/11/five-parameters-logistic-regression/
 drm_full_depth_5 <- drm(
   depth ~ pulses,
   data = full_curve_3x12x3,
-#  fct = LL2.5(names = c("Slope", "Lower Limit", "Upper Limit", "C","Asymmetry"),
-#              fixed = c(NA,NA,NA,NA,NA))
-  fct = W1.4(names = c("b", "Lower Limit", "Upper Limit", "e")) 
+  fct = LL2.5(names = c("Slope", "Lower Limit", "Upper Limit", "C","Asymmetry"),
+              fixed = c(NA,NA,NA,NA,NA))
 )
 ```
 
@@ -207,7 +215,7 @@ depth_fitted <- as.data.frame(cbind(
   )
 )) |> unique()
 
-EC50_pulses_pred <- as.data.frame(ED(drm_full_depth_5, 50, interval = "delta", vcov = sandwich))
+EC50_pulses_pred <- as.data.frame(exp(ED(drm_full_depth_5, 50, interval = "delta", vcov = sandwich)))
 
 EC50_depth_pred <- as.data.frame(cbind("EC50_pulses" = EC50_pulses_pred$Estimate, (t(
   predict(
@@ -228,7 +236,7 @@ ggplot(data = NULL) +
     data = full_curve_3x12x3,
     aes(x = pulses, y = depth),
     method = drm,
-    method.args = list(fct = W1.4()),
+    method.args = list(fct = LL2.5()),
     se = F,
     linetype = "dashed",
     color = "black"
@@ -278,8 +286,8 @@ ggplot(data = NULL) +
   labs(
     x = "Log(Pulses)",
     y = "Depth (mm)",
-    title = "4-Parameter Weibull Type 1 - 3x12x3",
-    caption = "Regression line with Robust 95% confidence Intervals and Observed Values"
+    title = "5-Parameter Log-Logistic - 3x12x3",
+    caption = "Regression line with Robust 95% Confidence Intervals and Observed Values"
   ) +
   blank.plot +
   theme(
@@ -302,7 +310,7 @@ ggsave("15kv3x12x3uni_full_depth.png",
 #### Model Selection
 
 ```{r}
-drm_diameter_l4_5 <- drm(
+drm_diameter_l3_5 <- drm(
   diameter ~ application_num,
   data = full_curve_3x12x3,
   fct = L.3()
@@ -311,7 +319,7 @@ drm_diameter_l4_5 <- drm(
 
 ```{r}
 mselect(
-  drm_diameter_l4_5,
+  drm_diameter_l3_5,
   list(
     L.3(),
     L.4(),
@@ -337,7 +345,11 @@ rlm_diameter_5 <- rlm(
 ```
 
 ```{r}
-BIC(drm_diameter_l4_5)
+BIC(drm(
+  diameter ~ application_num,
+  data = full_curve_3x12x3,
+  fct = LL.3()
+))
 BIC(rlm_diameter_5)
 ```
 
@@ -345,10 +357,6 @@ BIC(rlm_diameter_5)
 
 ```{r}
 summary(rlm_diameter_5)
-```
-
-```{r}
-confint.default(object = rlm_diameter_5, parm = "log(pulses)", level = 0.95)
 ```
 
 I need the median of the fitted function not the quantiles of the observed data
@@ -359,7 +367,30 @@ intercept <- coef(rlm_diameter_5)[["(Intercept)"]]
 m <- coef(rlm_diameter_5)[["log(pulses)"]]
 
 EC50_diameter <- quantile(full_curve_3x12x3$diameter, 0.5)
-EC50_pulse <- exp((EC50_diameter-intercept)/m)
+#EC50_pulse <- exp((EC50_diameter-intercept)/m)
+```
+
+We will use inverse estimation to get confidence intervals on number of pulses expected for ED50
+
+```{r}
+#invest(
+#  rlm_diameter_5,
+#  y0 = EC50_diameter,
+#  interval = "inversion",
+#  level = 0.95,
+#  lower = 3,
+#  upper = 3 * 12 * 3 * 10
+#)
+
+# This yields same answer as exp((EC50_diameter-intercept)/m) calculation
+EC50_pulse_wald <- invest(
+  rlm_diameter_5,
+  y0 = EC50_diameter,
+  interval = "Wald",
+  level = 0.95,
+  lower = 3,
+  upper = 3 * 12 * 3 * 10
+)
 ```
 
 #### Plotting
@@ -403,23 +434,23 @@ ggplot(data = NULL) +
   ) +
   geom_point(
     data = NULL,
-    aes(x = EC50_pulse, y = EC50_diameter),
+    aes(x = EC50_pulse_wald$estimate, y = EC50_diameter),
     size = 14,
     shape = 6,
     fill = "white",
     color = "black"
   ) +
   geom_point(data = NULL,
-             aes(x = EC50_pulse, y = EC50_diameter),
+             aes(x = EC50_pulse_wald$estimate, y = EC50_diameter),
              size = 2) +
-#  geom_segment(data = EC50_pulses_pred,
-#               aes(
-#                 x = lwr,
-#                 y = 1,
-#                 xend = upr,
-#                 yend = 1
-#               ),
-#               color = "blue") +
+  geom_segment(data = NULL,
+               aes(
+                 x = EC50_pulse_wald$lower,
+                 y = 24,
+                 xend = EC50_pulse_wald$upper,
+                 yend = 24
+               ),
+               color = "blue") +
   scale_x_continuous(
     labels = c(
       unique(full_curve_3x12x3$pulse_seq),
@@ -436,6 +467,7 @@ ggplot(data = NULL) +
     caption = "Regression line with Robust 95% confidence Intervals and Observed Values"
   ) +
   blank.plot +
+  coord_cartesian(ylim = c(20,50)) +
   theme(
     axis.text = element_text(size = 20, face = "bold"),
     axis.title = element_text(size = 24, face = "bold")
@@ -489,6 +521,9 @@ drm_depth_ratio_5 <- drm(
 ```{r}
 summary(drm_depth_ratio_5)
 ```
+
+##### Post-Hoc
+
 
 #### Plotting 
 
