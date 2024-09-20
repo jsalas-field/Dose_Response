@@ -51,14 +51,43 @@ load(working_dat_dir)
 
 # Regression Fitting
 
+The mselect method failed us for moseling. It wanted me to fit the 10kv 20x5 Bipolar diameter with a 3 parameter log-logistic curve. It should be linear by looking at it. 
+
 ## 10kV 20x5 Bipolar 
 
-### Linear Regression
+### Depth 
 
-#### Depth 
+#### Model Selection 
 
 ```{r}
-lm_depth_1 <- lm(
+drm_depth_mselect_1 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" & 
+              waveform == "bipolar"),
+  fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+```{r}
+mselect(
+  drm_depth_mselect_1,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
+```
+
+#### Robust Linear Regression
+
+```{r}
+rlm_depth_1 <- rlm(
   depth ~ application_num,
   data = working_dat,
   subset = (voltage == 10 &
@@ -68,8 +97,16 @@ lm_depth_1 <- lm(
 ```
 
 ```{r}
-summary(lm_depth_1)
+summary(rlm_depth_1)
 ```
+
+##### Post-Hoc Tests
+
+```{r}
+f.robftest(rlm_depth_1, var = "application_num")
+```
+
+#### Plotting
 
 ```{r}
 working_dat |>
@@ -78,10 +115,10 @@ working_dat |>
               waveform == "bipolar") |>
 ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  geom_smooth(method = "lm", se = F ) +
+  geom_smooth(method = "rlm", se = F ) +
   scale_x_continuous(labels = unique(working_dat$application_num),
                      breaks = unique(working_dat$application_num)) +
-  ggtitle("10kV 20x5 Bipolar") +
+  ggtitle("rlm 10kV 20x5 Bipolar") +
   xlab("Applications") +
   ylab("Depth (mm)") +
 # labs(caption = "Caption") +
@@ -100,9 +137,13 @@ ggsave("10kv20x5bipolar_depth.png",
        limitsize = F)
 ```
 
+### Diameter 
+
+#### Model Selection 
+
 ```{r}
-drm_depth_asymp_1 <- drm(
-  depth ~ application_num,
+drm_diameter_mselect_1 <- drm(
+  diameter ~ application_num,
   data = working_dat,
   subset = (voltage == 10 &
               pulse_seq == "20x5" & 
@@ -112,25 +153,52 @@ drm_depth_asymp_1 <- drm(
 ```
 
 ```{r}
-summary(drm_depth_asymp_1)
+mselect(
+  drm_diameter_mselect_1,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
 ```
 
-
-#### Diameter
+#### Robust Linear Regression
 
 ```{r}
-lm_diameter_1 <- lm(
+rlm_diameter_1 <- rlm(
   diameter ~ application_num,
   data = working_dat,
   subset = (voltage == 10 &
               pulse_seq == "20x5" &
               waveform == "bipolar")
 )
+
+drm_diameter_1 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "20x5" &
+              waveform == "bipolar"),
+  fct = LL.3()
+)
 ```
 
 ```{r}
-summary(lm_diameter_1)
+summary(rlm_diameter_1)
+summary(drm_diameter_1)
 ```
+
+###### Post-Hoc Tests
+
+```{r}
+f.robftest(rlm_diameter_1, var = "application_num")
+```
+
+#### Plotting
 
 ```{r}
 working_dat |>
@@ -139,14 +207,14 @@ working_dat |>
               waveform == "bipolar") |>
 ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  geom_smooth(method = "lm", se = F) +
+  geom_smooth(method = "rlm", se = F ) +
   scale_x_continuous(labels = unique(working_dat$application_num),
                      breaks = unique(working_dat$application_num)) +
-  ggtitle("10kV 20x5 Bipolar") +
+  ggtitle("rlm 10kV 20x5 Bipolar") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
 # labs(caption = "Caption") +
-  coord_cartesian(ylim=c(10,20)) +
+# coord_cartesian(ylim=c(3,7)) +
   blank.plot +
   theme(axis.text=element_text(size=40, face = "bold"),
         axis.title=element_text(size=24,face="bold")) 
@@ -161,22 +229,10 @@ ggsave("10kv20x5bipolar_diameter.png",
        limitsize = F)
 ```
 
-```{r}
-drm_diameter_asymp_1 <- drm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 10 &
-              pulse_seq == "20x5" & 
-              waveform == "bipolar"),
-  fct = AR.2(names = c("Upper Limit", "Steepness"))
-)
-```
 
-```{r}
-summary(drm_diameter_asymp_1)
-```
+### Depth/Diameter Ratio
 
-#### Depth/Diameter Ratio
+#### Robust Linear Regression
 
 ```{r}
 rlm_depth_ratio_1 <- rlm(
@@ -187,11 +243,15 @@ rlm_depth_ratio_1 <- rlm(
               waveform == "bipolar"))
 ```
 
+##### Post-Hoc
+
 ```{r}
 summary(rlm_depth_ratio_1)
 
 f.robftest(rlm_depth_ratio_1, var = "application_num")
 ```
+
+#### Plotting 
 
 ```{r}
 working_dat |>
@@ -200,10 +260,10 @@ working_dat |>
               waveform == "bipolar") |>
 ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  geom_smooth(method = "lm", se = F) +
+  geom_smooth(method = "rlm", se = F) +
   scale_x_continuous(labels = unique(working_dat$application_num),
                      breaks = unique(working_dat$application_num)) +
-  ggtitle("10kV 20x5 Bipolar") +
+  ggtitle("rlm 10kV 20x5 Bipolar") +
   xlab("Applications") +
   ylab("Depth per Diameter") +
 # labs(caption = "Caption") +
@@ -213,13 +273,9 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
         axis.title=element_text(size=24,face="bold")) 
 ```
 
+## 10 kV bipolar 10x5
 
-
-## 10 kV Fast-Switch 10x5
-
-### 2-Parameter Nonlinear Asymptotic Regression
-
-#### Depth
+### Depth
 
 ```{r}
 drm_depth_asymp_2 <- drm(
@@ -227,30 +283,60 @@ drm_depth_asymp_2 <- drm(
   data = working_dat,
   subset = (voltage == 10 &
               pulse_seq == "10x5" & 
-              waveform == "fast-switch"),
+              waveform == "bipolar"),
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 ```
 
+#### Model Selection
+
 ```{r}
-summary(drm_depth_asymp_2)
+mselect(
+  drm_depth_asymp_2,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
 ```
+
+#### 3-Parameter Nonlinear Logistic Regression
+
+```{r}
+drm_depth_G3_2 <- drm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "10x5" & 
+              waveform == "bipolar"),
+  fct = G.3(names = c("b","Upper","e")))
+```
+
+##### Post-Hoc
+
+```{r}
+summary(drm_depth_G3_2)
+```
+
+#### Plotting 
 
 ```{r}
 working_dat |>
-  filter(voltage == 10, pulse_seq == "10x5", waveform == "fast-switch") |>
+  filter(voltage == 10, pulse_seq == "10x5", waveform == "bipolar") |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-    geom_smooth(method = rlm,
+              method.args = list(fct = G.3()),
               se = F) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
   scale_x_continuous(
     labels = unique(working_dat$application_num),
     breaks = unique(working_dat$application_num)
   ) +
-  ggtitle("10kV 10x5 Fast-Switch") +
+  ggtitle("3-Parameter Gompertz 10kV 10x5 bipolar") +
   xlab("Applications") +
   ylab("Depth (mm)") +
   # labs(caption = "Caption") + 
@@ -269,7 +355,9 @@ ggsave("10kv10x5fast_switch_depth.png",
        limitsize = F)
 ```
 
-#### Diameter
+### Diameter
+
+#### Model Selection
 
 ```{r}
 drm_diameter_asymp_2 <- drm(
@@ -277,18 +365,44 @@ drm_diameter_asymp_2 <- drm(
   data = working_dat,
   subset = (voltage == 10 &
               pulse_seq == "10x5" & 
-              waveform == "fast-switch"),
+              waveform == "bipolar"),
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 ```
 
 ```{r}
-summary(drm_diameter_asymp_2)
+mselect(
+  drm_diameter_asymp_2,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
+```
+
+#### Four-Parameter Gompertz
+
+```{r}
+drm_diameter_G4_2 <- drm(
+  diameter ~ application_num,
+  data = working_dat,
+  subset = (voltage == 10 &
+              pulse_seq == "10x5" & 
+              waveform == "bipolar"),
+  fct = G.4())
+```
+
+```{r}
+summary(drm_diameter_G4_2)
 ```
 
 ```{r}
 working_dat |>
-  filter(voltage == 10, pulse_seq == "10x5", waveform == "fast-switch") |>
+  filter(voltage == 10, pulse_seq == "10x5", waveform == "bipolar") |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(method = drm,
               method.args = list(fct = AR.2()),
@@ -298,7 +412,7 @@ working_dat |>
     labels = unique(working_dat$application_num),
     breaks = unique(working_dat$application_num)
   ) +
-  ggtitle("10kV 10x5 Fast-Switch") +
+  ggtitle("10kV 10x5 bipolar") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
   # labs(caption = "Caption") + 
@@ -325,7 +439,7 @@ rlm_depth_ratio_2 <- rlm(
   data = working_dat,
   subset = (voltage == 10 &
               pulse_seq == "10x5" & 
-              waveform == "fast-switch"))
+              waveform == "bipolar"))
 ```
 
 ```{r}
@@ -337,7 +451,7 @@ f.robftest(rlm_depth_ratio_2, var = "application_num")
 working_dat |>
   filter(voltage == 10,
               pulse_seq == "10x5",
-              waveform == "fast-switch") |>
+              waveform == "bipolar") |>
 ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
   geom_jitter(width = 0.2, size = 4, na.rm = T) + 
   geom_smooth(method = "rlm", se = T) +
@@ -368,8 +482,35 @@ drm_depth_asymp_3 <- drm(
 )
 ```
 
+##### Model Selection 
+
+```{r}
+mselect(
+  drm_depth_asymp_3,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
+)
+```
+
+```{r}
+rlm_depth_asymp_3 <- rlm(
+  depth ~ application_num,
+  data = working_dat,
+  subset = (voltage == 15 &
+              pulse_seq == "15x5" & 
+              waveform == "unipolar")
+)
+```
+
 ```{r}
 summary(drm_depth_asymp_3)
+summary(rlm_depth_asymp_3)
 ```
 
 ```{r}
@@ -413,6 +554,22 @@ drm_diameter_asymp_3 <- drm(
               pulse_seq == "15x5" & 
               waveform == "unipolar"),
   fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+##### Model Selection 
+
+```{r}
+mselect(
+  drm_diameter_asymp_3,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
 )
 ```
 
@@ -499,6 +656,22 @@ drm_depth_asymp_4 <- drm(
               pulse_seq == "20x5" & 
               waveform == "unipolar"),
   fct = AR.2(names = c("Upper Limit", "Steepness"))
+)
+```
+
+##### Model Selection 
+
+```{r}
+mselect(
+  drm_depth_asymp_4,
+  list(
+    L.3(), #L.3 lower limit at dose 0 is fixed at 0
+    LL.3(), #LL.3 lower limit at dose 0 is fixed at 0
+    LL2.3(), #LL2.3 lower limit at dose 0 is fixed at 0
+    AR.2(), #AR.2 lower limit at dose 0 is fixed at 0
+    MM.2(), #MM.2 lower limit at dose = 0 is fixed at 0
+  ),
+  linreg = TRUE
 )
 ```
 
@@ -618,170 +791,6 @@ ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
 #  coord_cartesian(ylim=c(10,20)) +
   blank.plot 
 ```
-
-## 15 kV Unipolar 3x12x3
-
-### 2-Parameter Nonlinear Asymptotic Regression
-
-#### Depth
-
-```{r}
-drm_depth_asymp_5 <- drm(
-  depth ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
-  fct = AR.2(names = c("Upper Limit", "Steepness"))
-)
-```
-
-```{r}
-summary(drm_depth_asymp_5)
-```
-
-```{r}
-working_dat |>
-  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
-  ggplot(data = _, aes(x = application_num, y = depth)) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-  geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  scale_x_continuous(
-    labels = unique(working_dat$application_num),
-    breaks = unique(working_dat$application_num)
-  ) +
-  ggtitle("15kV 3x12x3 Unipolar") +
-  xlab("Applications") +
-  ylab("Depth (mm)") +
-#  # labs(caption = "Caption") + 
-  coord_cartesian(ylim=c(3, 18))+
-  blank.plot 
-#  theme(axis.text=element_text(size=40, face = "bold"),
-#        axis.title=element_text(size=24,face="bold")) 
-
-#ggsave("15kv3x12x3uni_depth.png",
-#       path = "figures",
-#       scale = 1,
-#       width = 20,
-#       height = 28,
-#       units = "cm",
-#       dpi = "retina",
-#       limitsize = F)
-```
-
-#### Diameter
-
-```{r}
-drm_diameter_asymp_5 <- drm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
-  fct = AR.2(names = c("Upper Limit", "Steepness"))
-)
-```
-
-```{r}
-rlm_diameter_asymp_5 <- rlm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
-)
-```
-
-```{r}
-summary(drm_diameter_asymp_5)
-summary(rlm_diameter_asymp_5)
-```
-
-```{r}
-working_dat |>
-  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
-  ggplot(data = _, aes(x = application_num, y = diameter)) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-#    geom_smooth(method = rlm,
-#              se = F) +
-  geom_jitter(width = 0.2, size = 4, na.rm = T) + 
-  scale_x_continuous(
-    labels = unique(working_dat$application_num),
-    breaks = unique(working_dat$application_num)
-  ) +
-  ggtitle("15kV 3x12x3 Unipolar") +
-  xlab("Applications") +
-  ylab("Diameter (mm)") +
-#  # labs(caption = "Caption") +
-#  coord_cartesian(ylim=c(20,60)) +
-  blank.plot 
-#  theme(axis.text=element_text(size=40, face = "bold"),
-#        axis.title=element_text(size=24,face="bold")) 
-
-#ggsave("15kv20x5uni_diameter.png",
-#       path = "figures",
-#       scale = 1,
-#       width = 20,
-#       height = 28,
-#       units = "cm",
-#       dpi = "retina",
-#       limitsize = F)
-```
-
-#### Depth/Diameter Ratio
-
-```{r}
-drm_depth_ratio_5 <- drm(
-  diameter ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"),
-  fct = AR.2(names = c("Upper Limit", "Steepness"))
-)
-```
-
-```{r}
-rlm_depth_ratio_5 <- rlm(
-  depth_per_width ~ application_num,
-  data = working_dat,
-  subset = (voltage == 15 &
-              pulse_seq == "3x12x3" & 
-              waveform == "unipolar"))
-```
-
-```{r}
-summary(drm_depth_ratio_5)
-summary(rlm_depth_ratio_5)
-f.robftest(rlm_depth_ratio_5,"application_num")
-```
-
-```{r}
-working_dat |>
-  filter(voltage == 15, pulse_seq == "3x12x3", waveform == "unipolar") |>
-  ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
-  geom_jitter(width = 0.2, size = 4, na.rm = T) +
-  geom_smooth(method = "rlm", se = T) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-  scale_x_continuous(
-    labels = unique(working_dat$application_num),
-    breaks = unique(working_dat$application_num)
-  ) +
-  ggtitle("15kV 3x12x3 Bipolar") +
-  xlab("Applications") +
-  ylab("Depth per Diameter") +
-  #  # labs(caption = "Caption") +
-  #  coord_cartesian(ylim=c(10,20)) +
-  blank.plot 
-```
-
-
 
 ## Summary Plot
 
