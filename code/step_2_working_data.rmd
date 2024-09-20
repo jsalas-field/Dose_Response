@@ -98,8 +98,12 @@ full_curve_3x12x3 <- cleaned_res |>
   arrange(pulses)
 ```
 
+## Deduplicate transmural depths
+
+When transmural, we mark both rows as having the same depth, but that's deceptive
+
 ```{r}
-kissing_dat <- cleaned_res_2 
+kissing_dat <-  cleaned_res_2 |> distinct()
 ```
 
 # Save cleaned data
