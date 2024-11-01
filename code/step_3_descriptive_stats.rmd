@@ -43,9 +43,9 @@ load(working_dat_dir)
 ## Summary Table of Subjects 
 ```{r How many subjects got which waveform, pulse sequence, and input voltage, echo = F}
 working_dat |>
-  count(waveform, voltage, pulse_seq) |> left_join(
+  count(species, waveform, voltage, pulse_seq) |> left_join(
     # Add in basic stats for depth/diameter
-    working_dat |> group_by(waveform, voltage, pulse_seq) |>
+    working_dat |> group_by(species, waveform, voltage, pulse_seq) |>
       summarise(
         median_depth = median(depth, na.rm = T),
         IQR_depth = IQR(depth, na.rm = T),
@@ -60,10 +60,10 @@ working_dat |>
 ```{r}
 kissing_dat |>
   filter(dimension == "depth") |>
-  count(waveform, voltage, pulse_seq, application_num) |> left_join(
+  count(species, waveform, voltage, pulse_seq, application_num) |> left_join(
     # Add in basic stats for depth/diameter
     kissing_dat |>
-      filter(dimension == "depth") |> group_by(waveform, voltage, pulse_seq, application_num) |>
+      filter(dimension == "depth") |> group_by(species, waveform, voltage, pulse_seq, application_num) |>
       summarise(
         median_depth = median(dim_value, na.rm = T),
         IQR_depth = IQR(dim_value, na.rm = T)
@@ -74,18 +74,16 @@ kissing_dat |>
 ```{r}
 kissing_dat |>
   filter(dimension == "diameter") |>
-  count(waveform, voltage, pulse_seq, application_num) |> left_join(
+  count(species, waveform, voltage, pulse_seq, application_num) |> left_join(
     # Add in basic stats for depth/diameter
     kissing_dat |>
-      filter(dimension == "diameter") |> group_by(waveform, voltage, pulse_seq, application_num) |>
+      filter(dimension == "diameter") |> group_by(species, waveform, voltage, pulse_seq, application_num) |>
       summarise(
         median_diameter = median(dim_value, na.rm = T),
         IQR_diameter = IQR(dim_value, na.rm = T)
       )
   )
 ```
-
-
 
 # Plots
 
@@ -95,23 +93,27 @@ kissing_dat |>
 
 ```{r echo = F}
 working_dat |>
-  ggplot(data = _, aes(
-    x = application_num,
-    y = depth
-  )) +
-  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm=T) +
-  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_point(
+    size = 4,
+    na.rm = T,
+    aes(color = interaction(voltage, waveform, pulse_seq)),
+    position = position_jitter(seed = 42494)
+  ) +
+  facet_wrap(~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim = c(0,25)) +
-#  ggtitle("Title") +
+  coord_cartesian(ylim = c(0, 25)) +
+  #  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth (mm)") +
-# labs(caption = "Caption") +
+  # labs(caption = "Caption") +
   theme_cowplot(12) +
-  theme(axis.text = element_text(size = 30, face = "bold"),
-        axis.title = element_text(size = 24,face = "bold")) 
+  theme(
+    axis.text = element_text(size = 30, face = "bold"),
+    axis.title = element_text(size = 24, face = "bold")
+  ) 
 
 ggsave("raw_applications_vs_depth.png",
        path = "figures",
@@ -134,7 +136,7 @@ ggsave("raw_applications_vs_depth.png",
 ```{r}
 full_curve_3x12x3 |>
   ggplot(data = _, aes(x = pulses, y = depth, color = factor(pulses))) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   scale_x_continuous(
 #    labels = factor(full_curve_3x12x3$pulse_seq),
 #    breaks = full_curve_3x12x3$pulses,
@@ -162,7 +164,7 @@ kissing_dat |>
            shape = id
          )) +
   geom_boxplot() +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   #  scale_x_continuous(
   #    labels = factor(full_curve_3x12x3$pulse_seq),
   #    breaks = full_curve_3x12x3$pulses,
@@ -182,7 +184,7 @@ kissing_dat |>
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -201,23 +203,27 @@ working_dat |>
 
 ```{r}
 working_dat |>
-  ggplot(data = _, aes(
-    x = application_num,
-    y = diameter
-  )) +
-  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
-  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  ggplot(data = _, aes(x = application_num, y = diameter)) +
+  geom_point(
+    size = 4,
+    na.rm = T,
+    aes(color = interaction(voltage, waveform, pulse_seq)),
+    position = position_jitter(seed = 42494)
+  ) +
+facet_wrap(~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim = c(0,60)) +
-#  ggtitle("Title") +
+  coord_cartesian(ylim = c(0, 60)) +
+  #  ggtitle("Title") +
   xlab("Applications") +
   ylab("Diameter (mm)") +
-# labs(caption = "Caption") +
+  # labs(caption = "Caption") +
   theme_cowplot(12) +
-  theme(axis.text = element_text(size = 30, face = "bold"),
-        axis.title = element_text(size = 24,face = "bold")) 
+  theme(
+    axis.text = element_text(size = 30, face = "bold"),
+    axis.title = element_text(size = 24, face = "bold")
+  ) 
 
 ggsave("raw_applications_vs_diameter.png",
        path = "figures",
@@ -233,7 +239,7 @@ ggsave("raw_applications_vs_diameter.png",
 ```{r}
 full_curve_3x12x3 |>
   ggplot(data = _, aes(x = pulses, y = diameter)) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   scale_x_continuous(
     labels = factor(full_curve_3x12x3$pulse_seq),
     breaks = full_curve_3x12x3$pulses,
@@ -261,7 +267,7 @@ kissing_dat |>
            shape = id
          )) +
   geom_boxplot(outliers=F) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   #  scale_x_continuous(
   #    labels = factor(full_curve_3x12x3$pulse_seq),
   #    breaks = full_curve_3x12x3$pulses,
@@ -281,7 +287,7 @@ kissing_dat |>
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = depth)) +
   geom_smooth(span = 10) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -302,7 +308,7 @@ working_dat |>
 working_dat |>
   ggplot(data = _, aes(x = application_num, y = diameter)) +
   geom_smooth(span = 10) +
-  geom_jitter(size = 4, na.rm = T) +
+  geom_point(size = 4, na.rm = T, position = position_jitter(seed = 42494)) +
   facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
@@ -320,22 +326,26 @@ working_dat |>
 
 ```{r}
 working_dat |>
-  ggplot(data = _, aes(
-    x = application_num,
-    y = depth_per_width
-  )) +
-  geom_jitter(size = 4, aes(color = interaction(voltage,waveform,pulse_seq)), na.rm = T) +
-  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_point(
+    size = 4,
+    na.rm = T,
+    aes(color = interaction(voltage, waveform, pulse_seq)),
+    position = position_jitter(seed = 42494)
+  ) +
+  facet_wrap(~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
-#  ggtitle("Title") +
+  #  ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
-# labs(caption = "Caption") +
+  # labs(caption = "Caption") +
   theme_cowplot(12) +
-  theme(axis.text = element_text(size = 30, face = "bold"),
-        axis.title = element_text(size = 24,face = "bold")) 
+  theme(
+    axis.text = element_text(size = 30, face = "bold"),
+    axis.title = element_text(size = 24, face = "bold")
+  ) 
 
 ggsave("raw_depth_diameter_ratio.png",
        path = "figures",
@@ -352,20 +362,19 @@ ggsave("raw_depth_diameter_ratio.png",
 
 ```{r}
 working_dat |>
-  ggplot(data = _, aes(
-    x = application_num,
-    y = depth_per_width
-  )) +
-  geom_jitter(size = 4, na.rm = T) +
+  ggplot(data = _, aes(x = application_num, y = depth_per_width)) +
+  geom_point(size = 4,
+             na.rm = T,
+             position = position_jitter(seed = 42494)) +
   geom_smooth(span = 10) +
-  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  facet_wrap(~ voltage + waveform + pulse_seq, nrow = 1) +
   scale_x_continuous(labels = working_dat$application_num,
                      breaks = working_dat$application_num) +
   scale_color_discrete(guide = "none") +
- # ggtitle("Title") +
+  # ggtitle("Title") +
   xlab("Applications") +
   ylab("Depth/Diameter Ratio") +
-# labs(caption = "Caption") +
+  # labs(caption = "Caption") +
   theme_cowplot(12)
 ```
 
