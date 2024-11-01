@@ -57,6 +57,36 @@ working_dat |>
   )
 ```
 
+```{r}
+kissing_dat |>
+  filter(dimension == "depth") |>
+  count(waveform, voltage, pulse_seq, application_num) |> left_join(
+    # Add in basic stats for depth/diameter
+    kissing_dat |>
+      filter(dimension == "depth") |> group_by(waveform, voltage, pulse_seq, application_num) |>
+      summarise(
+        median_depth = median(dim_value, na.rm = T),
+        IQR_depth = IQR(dim_value, na.rm = T)
+      )
+  )
+```
+
+```{r}
+kissing_dat |>
+  filter(dimension == "diameter") |>
+  count(waveform, voltage, pulse_seq, application_num) |> left_join(
+    # Add in basic stats for depth/diameter
+    kissing_dat |>
+      filter(dimension == "diameter") |> group_by(waveform, voltage, pulse_seq, application_num) |>
+      summarise(
+        median_diameter = median(dim_value, na.rm = T),
+        IQR_diameter = IQR(dim_value, na.rm = T)
+      )
+  )
+```
+
+
+
 # Plots
 
 ## Depth
@@ -92,14 +122,14 @@ ggsave("raw_applications_vs_depth.png",
        dpi = "retina",
        limitsize = F)
 ```
-#### 15kV 3x12x3 Unipolar Full Depth Curve
+
+### 15kV 3x12x3 Unipolar Full Depth Curve
 
 ```{r}
-temp <- colour_ramp(brewer_pal(
-          palette = "Spectral", direction = -1
-        )(11))(rescale(full_curve_3x12x3$pulses))
+#temp <- colour_ramp(brewer_pal(
+#          palette = "Spectral", direction = -1
+#        )(11))(rescale(full_curve_3x12x3$pulses))
 ```
-
 
 ```{r}
 full_curve_3x12x3 |>
@@ -118,7 +148,35 @@ full_curve_3x12x3 |>
   theme_cowplot(12)
 ```
 
-### Depth Dose-Response - Smoothed Line Plots
+### 10kV 20x5 Kissing Catheters - 1 vs 3 applications
+
+```{r}
+kissing_dat |>
+  filter(dimension == "depth") |>
+  ggplot(data = _,
+         aes(
+           x = factor(application_num),
+           y = dim_value,
+           group = factor(application_num),
+           color = transmural,
+           shape = id
+         )) +
+  geom_boxplot() +
+  geom_jitter(size = 4, na.rm = T) +
+  #  scale_x_continuous(
+  #    labels = factor(full_curve_3x12x3$pulse_seq),
+  #    breaks = full_curve_3x12x3$pulses,
+  #    trans = "log2"
+  #  ) +
+  #  coord_cartesian(ylim = c(0, 16)) +
+  ggtitle("10kV 20x5 Kissing Catheters") +
+  xlab("Applications") +
+  ylab("Depth (mm)") +
+  # labs(caption = "Caption") +
+  theme_cowplot(12)
+```
+
+#### Depth Dose-Response - Smoothed Line Plots
 
 ```{r echo = F}
 working_dat |>
@@ -170,7 +228,7 @@ ggsave("raw_applications_vs_diameter.png",
        dpi = "retina",
        limitsize = F)
 ```
-#### 15kV 3x12x3 Unipolar Full Diameter Curve
+### 15kV 3x12x3 Unipolar Full Diameter Curve
 
 ```{r}
 full_curve_3x12x3 |>
@@ -189,7 +247,56 @@ full_curve_3x12x3 |>
   theme_cowplot(12)
 ```
 
-### Diameter Dose-Response - Smoothed Line Plots
+### 10kV 20x5 Kissing Catheters - 1 vs 3 applications
+
+```{r}
+kissing_dat |>
+  filter(dimension == "diameter") |>
+  ggplot(data = _,
+         aes(
+           x = factor(application_num),
+           y = dim_value,
+           group = factor(application_num),
+           color = transmural,
+           shape = id
+         )) +
+  geom_boxplot(outliers=F) +
+  geom_jitter(size = 4, na.rm = T) +
+  #  scale_x_continuous(
+  #    labels = factor(full_curve_3x12x3$pulse_seq),
+  #    breaks = full_curve_3x12x3$pulses,
+  #    trans = "log2"
+  #  ) +
+  #  coord_cartesian(ylim = c(0, 16)) +
+  ggtitle("10kV 20x5 Kissing Catheters") +
+  xlab("Applications") +
+  ylab("Diameter (mm)") +
+  # labs(caption = "Caption") +
+  theme_cowplot(12)
+```
+
+#### Depth Dose-Response - Smoothed Line Plots
+
+```{r echo = F}
+working_dat |>
+  ggplot(data = _, aes(x = application_num, y = depth)) +
+  geom_smooth(span = 10) +
+  geom_jitter(size = 4, na.rm = T) +
+  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
+  scale_x_continuous(labels = working_dat$application_num,
+                     breaks = working_dat$application_num) +
+  scale_color_discrete(guide = "none") +
+  coord_cartesian(ylim = c(0,25)) +
+#  ggtitle("Title") +
+  xlab("Applications") +
+  ylab("Depth (mm)") +
+# labs(caption = "Caption") +
+  theme_cowplot(12)
+```
+
+
+
+#### Diameter Dose-Response - Smoothed Line Plots
 
 ```{r}
 working_dat |>
