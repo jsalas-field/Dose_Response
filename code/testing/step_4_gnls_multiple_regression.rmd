@@ -67,7 +67,9 @@ test_dat_2 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform
 ```
 
 ```{r}
-test_dat <- bind_rows(test_dat_1, test_dat_2)
+test_dat <- bind_rows(test_dat_1, test_dat_2) |> 
+  select(-generator) |>
+  na.omit()
 ```
 
 ## 15 kV Unipolar 20x5
@@ -81,30 +83,32 @@ Maybe let's do our compParm after fitting a model with no pmodel specifications,
 #### Depth
 
 ```{r}
-#drm_depth_asymp_grouped_4_1 <- drm(
-#  depth ~ application_num,
-#  curveid = group,
-##  pmodels = list(~1,~1), # first variable in list lets you fix the upper limit, second lets you fix the slope.
-#  data = test_dat,
-#  fct = AR.2(names = c("Upper Limit", "Steepness"))
-#)
+#drm_depth_asymp_grouped_4_1 <- nlme(depth ~ SSasympOrig(application_num, Asm, lrc), #data=test_dat, 
+#                    fixed= list(Asym + lrc ~ group),
+#                    groups = group,
+#                    random = ~ 1)
+temp <-  coef(nlsList(depth ~ SSasympOrig(application_num, Asym, lrc) | group, data=test_dat))
 
-drm_depth_asymp_grouped_4_1 <- nlme(depth ~ SSasympOrig(application_num, Asm, lrc), data=test_dat, 
-                    fixed= list(Asym + lrc ~ group),
-                    groups = group,
-                    random = ~ 1)
+#due to treatment contrasts
+start <- rbind(temp[1,], apply(temp, 2, diff))
+
+gnls_depth_asymp_1 <- gnls(
+  depth ~ SSasympOrig(application_num, Asym, lrc),
+  data = test_dat,
+  params = list(Asym + lrc ~ group),
+  start = start
+)
 ```
 
-
 ```{r}
-summary(drm_depth_asymp_grouped_4_1)
-summary(drm_depth_asymp_grouped_4_2)
+summary(gnls_depth_asymp_1)
 ```
 
 
 ```{r}
 #Test for significance of setting a common slope. Alternative hypothesis is that a common slope leads to a better model fit, i.e., a reduced model will fit significantly better than the more complex one where we estimate a slope for each group individually.
-anova(drm_depth_asymp_grouped_4_1,drm_depth_asymp_grouped_4_2) 
+
+#anova(drm_depth_asymp_grouped_4_1,drm_depth_asymp_grouped_4_2) 
 ```
 
 ##### Diagnostic Plots
@@ -113,42 +117,55 @@ distribution of residuals against the fitted value (variance homogeneity)
 q-q plot visualizes whether the residuals are normally distributed 
 
 ```{r}
-qqnorm(residuals(drm_depth_asymp_grouped_4))
- qqline(residuals(drm_depth_asymp_grouped_4))
+qqnorm(residuals(gnls_depth_asymp_1))
+ qqline(residuals(gnls_depth_asymp_1))
  
  par(mfrow = c(1, 2)) #put two graphs together
-    plot(residuals(drm_depth_asymp_grouped_4) ~ fitted(drm_depth_asymp_grouped_4), main="Residuals vs Fitted")
+    plot(residuals(gnls_depth_asymp_1) ~ fitted(gnls_depth_asymp_1), main="Residuals vs Fitted")
 abline(h=0)
 ```
 
-
 ##### Regression Results
 
+How do I do both simultaneously? How do I set a common slope for for gnls models like I do with drc?
+
 ```{r}
-coeftest(drm_depth_asymp_grouped_4, vcov = sandwich) # if confidence intervals for steepness overlap than no diff. Gives same result as "summary". This is with Huber Sandwich Estimator i.e., robust standard errors but not White standard errors to be specific
+emmeans(gnls_depth_asymp_1, param = "Asym", trt.vs.ctrl1 ~ group)
+emmeans(gnls_depth_asymp_1, param = "lrc", trt.vs.ctrl1 ~ group)
 ```
 
 ```{r}
-#confint(glht(ED(drm_depth_asymp_grouped_4, c(50), interval = "delta", multcomp = TRUE, display = FALSE)))
+joint_tests(gnls_depth_asymp_1, param = "Asym")
+joint_tests(gnls_depth_asymp_1, param = "lrc")
 ```
 
 ```{r}
-compParm(drm_depth_asymp_grouped_4_1, "Steepness", "-")
-compParm(drm_depth_asymp_grouped_4_1, "Upper Limit", "-")
+anova(gnls_depth_asymp_1, type = "marginal")
 ```
 
 ```{r}
-#ED(drm_depth_asymp_grouped_4, c(25, 50, 95))
-EDcomp(drm_depth_asymp_grouped_4_1, c(50,50))
+#EDcomp(drm_depth_asymp_grouped_4_1, c(50,50))
 ```
 
+gnls_depth_asymp_1 <- gnls(
+  depth ~ SSasympOrig(application_num, Asym, lrc),
+  data = test_dat,
+  params = list(Asym + lrc ~ group),
+  start = start
+)
 
 ```{r}
 test_dat |>
   ggplot(data = _, aes(x = application_num, y = depth, group = group, color = group)) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
+  geom_smooth(
+    method = gnls,
+    se = F,
+    method.args = list(
+      formula = y ~ SSasympOrig(x, Asym, lrc),
+      params = list(Asym + lrc ~ group),
+      start = start
+    )
+  ) +
   geom_jitter(width = 0.2, size = 4) + 
   scale_x_continuous(
     labels = unique(working_dat$application_num),
@@ -158,7 +175,7 @@ test_dat |>
   xlab("Applications") +
   ylab("Depth (mm)") +
   labs(caption = "Caption") + 
-  coord_cartesian(ylim=c(5,20))+
+#  coord_cartesian(ylim=c(5,20))+
   blank.plot 
 #  theme(axis.text=element_text(size=40, face = "bold"),
 #        axis.title=element_text(size=24,face="bold")) 

@@ -13,6 +13,8 @@ output:
 library(knitr)
 library(sfsmisc)
 library(multcomp)
+library(sandwich)
+library(lmtest)
 library(aomisc)
 library(ggplot2)
 library(dplyr)
@@ -60,7 +62,7 @@ test_dat_1 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform
   mutate(group = "og")
 test_dat_2 <- working_dat |> filter(voltage == 15, pulse_seq == "20x5", waveform == "unipolar") |> 
   mutate(group = "og_minus4",
-         depth = depth - 4)
+         depth = depth + 9)
 ```
 
 ```{r}
@@ -71,41 +73,76 @@ test_dat <- bind_rows(test_dat_1, test_dat_2)
 
 ### 2-Parameter Nonlinear Asymptotic Regression
 
+https://rstats4ag.org/dose-response-curves.html
+
+Maybe let's do our compParm after fitting a model with no pmodel specifications, then we test if there's a significant difference in slope and/or upper limit. If we have no biological reason to assume that those values need to be different and we show that there is no statistical difference in for example, slope, then we would specify a common slope in pmodels and rerun our models.
+
 #### Depth
 
 ```{r}
-drm_depth_asymp_grouped_4 <- drm(
+drm_depth_asymp_grouped_4_1 <- drm(
   depth ~ application_num,
   curveid = group,
+#  pmodels = list(~1,~1), # first variable in list lets you fix the upper limit, second lets you fix the slope.
   data = test_dat,
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
 
-drm_depth_asymp_grouped_4_ungrouped <- drm(
+drm_depth_asymp_grouped_4_2 <- drm(
   depth ~ application_num,
-#  curveid = group,
+  curveid = group,
+  pmodels = list(~group,~1), # first variable in list lets you fix the upper limit. Second variable sets slope. Here we say that the upper limit will vary per group but we assume a common slope for both.
   data = test_dat,
   fct = AR.2(names = c("Upper Limit", "Steepness"))
 )
-
-# Test for significance of group - who cares?
-#anova(drm_depth_asymp_grouped_4,drm_depth_asymp_grouped_4_ungrouped) 
 ```
 
 ```{r}
-#confint(glht(drm_depth_asymp_grouped_4)) # if confidence intervals for steepness overlap than no diff. Gives same result as "summary"
-summary(drm_depth_asymp_grouped_4)
+summary(drm_depth_asymp_grouped_4_1)
+summary(drm_depth_asymp_grouped_4_2)
+```
+
+
+```{r}
+#Test for significance of setting a common slope. Alternative hypothesis is that a common slope leads to a better model fit, i.e., a reduced model will fit significantly better than the more complex one where we estimate a slope for each group individually.
+anova(drm_depth_asymp_grouped_4_1,drm_depth_asymp_grouped_4_2) 
+```
+
+##### Diagnostic Plots
+
+distribution of residuals against the fitted value (variance homogeneity)
+q-q plot visualizes whether the residuals are normally distributed 
+
+```{r}
+qqnorm(residuals(drm_depth_asymp_grouped_4))
+ qqline(residuals(drm_depth_asymp_grouped_4))
+ 
+ par(mfrow = c(1, 2)) #put two graphs together
+    plot(residuals(drm_depth_asymp_grouped_4) ~ fitted(drm_depth_asymp_grouped_4), main="Residuals vs Fitted")
+abline(h=0)
+```
+
+
+##### Regression Results
+
+```{r}
+coeftest(drm_depth_asymp_grouped_4, vcov = sandwich) # if confidence intervals for steepness overlap than no diff. Gives same result as "summary". This is with Huber Sandwich Estimator i.e., robust standard errors but not White standard errors to be specific
 ```
 
 ```{r}
-compParm(drm_depth_asymp_grouped_4, "Steepness", "-")
-compParm(drm_depth_asymp_grouped_4, "Upper Limit", "-")
+#confint(glht(ED(drm_depth_asymp_grouped_4, c(50), interval = "delta", multcomp = TRUE, display = FALSE)))
+```
+
+```{r}
+compParm(drm_depth_asymp_grouped_4_1, "Steepness", "-")
+compParm(drm_depth_asymp_grouped_4_1, "Upper Limit", "-")
 ```
 
 ```{r}
 #ED(drm_depth_asymp_grouped_4, c(25, 50, 95))
-EDcomp(drm_depth_asymp_grouped_4, c(50,50))
+EDcomp(drm_depth_asymp_grouped_4_1, c(50,50))
 ```
+
 
 ```{r}
 test_dat |>
@@ -132,40 +169,6 @@ test_dat |>
 #       scale = 1,
 #       width = 20,
 #       height = 28,
-#       units = "cm",
-#       dpi = "retina",
-#       limitsize = F)
-```
-
-### Summary Plot
-
-#### Depth
-
-```{r}
-test_dat |>
-  ggplot(data = _, aes(x = application_num, y = depth, shape = group)) +
-  geom_smooth(method = drm,
-              method.args = list(fct = AR.2()),
-              se = F) +
-  geom_point(size = 4, aes(color = interaction(voltage,waveform,pulse_seq))) +
-  facet_wrap( ~ voltage + waveform + pulse_seq, nrow = 1) +
-  scale_x_continuous(labels = working_dat$application_num,
-                     breaks = working_dat$application_num) +
-  scale_color_discrete(guide = "none") +
-  coord_cartesian(ylim=c(0,25)) +
-  ggtitle("Title") +
-  xlab("Applications") +
-  ylab("Depth (mm)") +
-  labs(caption = "Caption") +
-  blank.plot 
-#  theme(axis.text=element_text(size=30, face = "bold"),
-#        axis.title=element_text(size=24,face="bold")) 
-
-#ggsave("nls_applications_vs_depth.png",
-#       path = "figures",
-#       scale = 1,
-#       width = 50,
-#       height = 25,
 #       units = "cm",
 #       dpi = "retina",
 #       limitsize = F)

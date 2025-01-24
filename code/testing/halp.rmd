@@ -12,6 +12,8 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(ggplot2)
+library(nlme)
+library(emmeans)
 library(drc)
 library(dplyr)
 knitr::opts_chunk$set(echo = F)
@@ -51,12 +53,37 @@ drm_mod <- drm(
 ```
 
 ```{r}
-nlme_mod <- nlme(dv ~ SSasympOrig(iv, Asm, lrc), data=df, 
-                    fixed= list(Asym + lrc ~ group),
-                #    groups = group,
-                    random = ~ 1)
+#nlme_mod <- nlme(dv ~ SSasympOrig(iv, Asm, lrc), data=df, 
+#                    fixed= list(Asym + lrc ~ group),
+#                    groups = group,
+#                    random = ~ 1)
 ```
 
+```{r}
+mod0 <- coef(nlsList(
+  dv ~ SSasympOrig(iv, Asym, lrc) | group,
+  data = df
+))
+
+#due to treatment contrasts
+start <- rbind(mod0[1,], apply(mod0, 2, diff))
+
+gnls_depth_asymp_1 <- gnls(
+  dv ~ SSasympOrig(iv, Asym, lrc),
+  data = df,
+  params = list(Asym + lrc ~ group),
+  start = start
+)
+```
+
+```{r}
+summary(gnls_depth_asymp_1)
+```
+
+```{r}
+#emm(gnls_depth_asymp_1)
+emmeans(gnls_depth_asymp_1, param = "Asym", trt.vs.ctrl1 ~ group)
+```
 
 
 # Version and Package Details
