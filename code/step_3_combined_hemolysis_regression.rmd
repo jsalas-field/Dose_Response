@@ -1,0 +1,463 @@
+---
+title: "PULSE & VCAS Hemolysis Regressions"
+author: "Jonathan Salas"
+date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: 
+    df_print: kable
+    fig_height: 6
+    keep_md: true
+---
+
+# Start with a clean slate
+
+## Remove all objects
+
+```{r echo = F, include=FALSE}
+rm(list = ls(all.names = TRUE)) # Remove all starting code
+```
+
+## Detach Packages
+
+```{r include=FALSE}
+try(invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE)), silent = T) # Detach Packages
+```
+
+# Load Libraries
+
+```{r setup, include=FALSE}
+library(MASS)
+library(sfsmisc)
+library(emmeans)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+knitr::opts_chunk$set(echo = F)
+knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
+```
+
+# Import the raw data - Point to the correct raw data directory
+
+```{r}
+raw_data_dir <- "data/processed/combined_hemolysis_dat.RData"
+```
+
+```{r}
+load(raw_data_dir)
+```
+
+# Regression
+
+## Set seed for reproducibility
+
+We found that asymptotic confidence intervals changed with each computation, unless we set a seed within each emmeans code chunk. We also tested setting a global seed 
+
+```{r}
+seed <- 42494
+```
+
+
+## Make Regression Data
+
+```{r}
+reg_dat_15kV <- combined_hemolysis_perc_change |> 
+  filter(data_event == "V 1 P R E D",
+         waveform == "Uni 20x5 15kV" | waveform == "Uni 3x12x3 15kV" | waveform == "15kV 3x12 Uni")
+
+reg_dat <- combined_hemolysis_perc_change |> 
+  filter(data_event == "V 1 P R E D")
+```
+
+
+## Number of Applications vs. Lab Values - Percent Change from V0 -> V1
+
+### Haptoglobin 
+
+#### Robust Linear Regression
+
+```{r}
+rlm_haptoglobin <-
+  rlm(
+    serumhaptoglobin_serumhaptoglobin_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_haptoglobin)
+```
+
+```{r}
+plot(rlm_haptoglobin)
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_haptoglobin <-
+  as.data.frame(emmeans::emmeans(rlm_haptoglobin,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_haptoglobin
+```
+
+
+##### Plot Results
+
+```{r}
+reg_dat |>
+ggplot(
+  aes(y = serumhaptoglobin_serumhaptoglobin_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = study, 
+                 shape = waveform
+                 ), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_haptoglobin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+  labs(x = "Applications", y = "% of Baseline", title = "Serum Haptoglobin", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+### Bilirubin 
+
+#### Robust Linear Regression
+
+
+
+```{r}
+rlm_bilirubin <-
+  rlm(
+    bilirubin_bilirubin_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_bilirubin)
+```
+
+```{r}
+plot(rlm_bilirubin)
+```
+
+```{r}
+f.robftest(rlm_bilirubin, "sum_applications")
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_bilirubin <-
+  as.data.frame(emmeans::emmeans(rlm_bilirubin,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_bilirubin
+```
+
+##### Plot Results
+
+```{r}
+ggplot(
+  data = reg_dat,
+  aes(y = bilirubin_bilirubin_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = subjectId, shape = waveform), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_bilirubin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+    labs(x = "Applications", y = "% of Baseline", title = "Bilirubin", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+### Lactate Dehydrogenase 
+
+#### Robust Linear Regression
+
+```{r}
+rlm_ldh <-
+  rlm(
+    ldh_ldh_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_ldh)
+```
+
+```{r}
+plot(rlm_ldh)
+```
+
+```{r}
+f.robftest(rlm_ldh, "sum_applications")
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_ldh <-
+  as.data.frame(emmeans::emmeans(rlm_ldh,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_ldh
+```
+
+
+##### Plot Results
+
+```{r}
+ggplot(
+  data = reg_dat,
+  aes(y = ldh_ldh_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = subjectId, shape = waveform), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_haptoglobin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+    labs(x = "Applications", y = "% of Baseline", title = "Lactate Dehydrogenase", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+### Potassium
+
+#### Robust Linear Regression
+
+```{r}
+rlm_K <-
+  rlm(
+    potassium_potassium_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_K)
+```
+
+```{r}
+plot(rlm_K)
+```
+
+```{r}
+f.robftest(rlm_K, "sum_applications")
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_K <-
+  as.data.frame(emmeans::emmeans(rlm_K,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_K
+```
+
+##### Plot Results
+
+```{r}
+ggplot(
+  data = reg_dat,
+  aes(y = potassium_potassium_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = subjectId, shape = waveform), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_haptoglobin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+    labs(x = "Applications", y = "% of Baseline", title = "Potassium", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+
+
+# 15kV ONLY
+
+### Haptoglobin 
+
+#### Robust Linear Regression
+
+```{r}
+rlm_haptoglobin_15kV <-
+  rlm(
+    serumhaptoglobin_serumhaptoglobin_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat_15kV
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_haptoglobin_15kV)
+```
+
+```{r}
+plot(rlm_haptoglobin_15kV)
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_haptoglobin_15kV <-
+  as.data.frame(emmeans::emmeans(rlm_haptoglobin_15kV,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_haptoglobin_15kV
+```
+
+
+##### Plot Results
+
+```{r}
+reg_dat_15kV |>
+ggplot(
+  aes(y = serumhaptoglobin_serumhaptoglobin_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = study, 
+                 shape = waveform
+                 ), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_haptoglobin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+  labs(x = "Applications", y = "% of Baseline", title = "Serum Haptoglobin - 15kV", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+### Bilirubin 
+
+#### Robust Linear Regression
+
+```{r}
+rlm_bilirubin_15kV <-
+  rlm(
+    bilirubin_bilirubin_bloodvalue_perc_change ~ sum_applications,
+    data = reg_dat_15kV
+  )
+```
+
+##### Post-Hoc
+
+```{r}
+summary(rlm_bilirubin_15kV)
+```
+
+```{r}
+plot(rlm_bilirubin_15kV)
+```
+
+```{r}
+set.seed(.GlobalEnv$seed)
+emm_rlm_bilirubin_15kV <-
+  as.data.frame(emmeans::emmeans(rlm_bilirubin_15kV,
+                   ~ sum_applications,
+                   at = list(sum_applications = c(25, 50, 75, 100, 125, 150)),
+                   adjust = "mvt"))
+
+emm_rlm_bilirubin_15kV
+```
+
+
+##### Plot Results
+
+```{r}
+reg_dat_15kV |>
+ggplot(
+  aes(y = bilirubin_bilirubin_bloodvalue_perc_change, x = sum_applications)
+) +
+  geom_smooth(method = "rlm", se = F) +
+  geom_point(aes(color = study, 
+                 shape = waveform
+                 ), size = 3) +
+#  geom_errorbar(
+#    data = emm_rlm_haptoglobin,
+#    aes(
+#      x = applications,
+#      y = emmean,
+#      ymin = asymp.LCL,
+#      ymax = asymp.UCL
+#    ),
+#    width = .3
+#  )  +
+  labs(x = "Applications", y = "% of Baseline", title = "Bilirubin - 15kV", caption = "Robust Linear Regression") +
+  theme_cowplot(12)
+```
+
+# Version and Package Details
+
+```{r echo=F}
+paste(version$version.string, version$nickname)
+paste0(
+  "RStudio Version ",
+  rstudioapi::versionInfo()$version,
+  " ",
+  rstudioapi::versionInfo()$release_name
+) # RStudio Version
+subset(data.frame(sessioninfo::package_info()),
+       attached == TRUE,
+       c(package, loadedversion)) # Loaded Packages
+```
+
+# Detach Packages before moving on
+
+```{r}
+invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE)) # Detach Packages
+```
+
+# When were these files last rewritten?
+
+```{r}
+date()
+```
