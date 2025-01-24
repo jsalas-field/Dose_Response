@@ -5,16 +5,26 @@ date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
+# Start with a clean slate
+
+## Remove all objects
+
+```{r echo = F, include=FALSE}
+rm(list = ls(all.names = TRUE)) # Remove all starting code
+```
+
+## Detach Packages
+
+```{r include=FALSE}
+try(invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE)), silent = T) # Detach Packages
+```
+
+# Load Libraries
+
 ```{r setup, include = FALSE}
 library(stringr)
 library(dplyr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
-```
-
-# Start with a clean slate
-
-```{r echo = F}
-rm(list = ls(all.names = TRUE))
 ```
 
 # Import the raw data - Point to the correct raw data directory
@@ -23,10 +33,28 @@ rm(list = ls(all.names = TRUE))
 raw_data_dir <- "data/processed/imported_dr.RData"
 ```
 
+# Import Processed VCAS and PULSE Labs Data
+
+```{r}
+load("~/R_Projects/VCAS1_prelim_labs/data/processed/working_stats.RData")
+VCAS_hemolysis_perc_change <- hemolysis_perc_change
+load("~/R_Projects/PULSE_prelim_labs/data/processed/working_stats.RData")
+PULSE_hemolysis_perc_change <- hemolysis_perc_change
+
+rm(cleaned_res, cleaned_res_1, headers, hemolysis_dat, hemolysis_perc_change)
+```
 
 ## Import Subject Data
 ```{r}
 load(raw_data_dir)
+```
+
+# Combine Hemolysis Percent Change 
+
+```{r}
+combined_hemolysis_perc_change <- 
+  bind_rows(VCAS_hemolysis_perc_change |> mutate(study = "VCAS") |> rename(sum_applications = numberapplications),
+      PULSE_hemolysis_perc_change |> mutate(study = "PULSE")) 
 ```
 
 ## Correct Data Types & Calculate derived statistics
@@ -114,6 +142,12 @@ save(working_dat,
      kissing_dat,
      file = paste0("data/processed/working_dr.RData"))
 ```
+
+```{r}
+save(combined_hemolysis_perc_change, 
+     file = paste0("data/processed/combined_hemolysis_dat.RData"))
+```
+
 
 # Version and Package Details
 
