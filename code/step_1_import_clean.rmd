@@ -5,17 +5,27 @@ date: "Last Updated `r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 
+# Start with a clean slate
+
+## Remove all objects
+
+```{r echo = F, include=FALSE}
+rm(list = ls(all.names = TRUE)) # Remove all starting code
+```
+
+## Detach Packages
+
+```{r include=FALSE}
+try(invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE)), silent = T) # Detach Packages
+```
+
+# Load Libraries
+
 ```{r setup, include = FALSE}
 library(readxl)
 library(janitor)
 library(dplyr)
 knitr::opts_knit$set(root.dir = "~/R_Projects/Dose_Response")
-```
-
-# Start with a clean slate
-
-```{r echo = F}
-rm(list = ls(all.names = TRUE))
 ```
 
 # Import the raw data - Point to the correct raw data directory
